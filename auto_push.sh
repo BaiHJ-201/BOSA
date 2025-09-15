@@ -1,4 +1,5 @@
 #!/bin/bash
+git config --global user.name "nocoding-maker"
 
 # 进入项目目录
 cd /root/TRIBE || exit
@@ -7,7 +8,7 @@ cd /root/TRIBE || exit
 git remote -v || git remote add origin git@github.com:nocoding-maker/Real-TTA-in-edge.git
 
 # 拉取最新远程更新，避免冲突
-git pull origin main --rebase
+git pull origin master --rebase
 
 # 添加更新（忽略 datasets/）
 git add .
@@ -16,4 +17,4 @@ git add .
 git commit -m "Auto update: $(date '+%Y-%m-%d %H:%M:%S')"
 
 # 推送到远程
-git push origin main
+git push -u origin master
