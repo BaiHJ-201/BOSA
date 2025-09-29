@@ -6,6 +6,10 @@ from ..utils.bn_layers import BalancedRobustBN2dV5, BalancedRobustBN2dEMA, Balan
 from ..utils.utils import set_named_submodule, get_named_submodule
 from ..utils.custom_transforms import get_tta_transforms
 
+def update_ema_variables(ema_model, model, alpha_teacher):
+    for ema_param, param in zip(ema_model.parameters(), model.parameters()):
+        ema_param.data[:] = alpha_teacher * ema_param[:].data[:] + (1 - alpha_teacher) * param[:].data[:]
+    return ema_model
 
 class TRIBE(BaseAdapter):
     def __init__(self, cfg, model, optimizer):

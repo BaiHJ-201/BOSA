@@ -1,7 +1,11 @@
 import logging
 import torch
 import argparse
-
+import sys
+import os
+import inspect
+current_dir = os.path.dirname(os.path.abspath(__file__))  # 当前文件所在目录
+sys.path.insert(0, os.path.join(current_dir, 'tinytl', 'once-for-all'))
 from core.configs import cfg
 from core.utils import *
 from core.model import build_model
@@ -17,28 +21,20 @@ import time
 
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
+from tinytl.memory_cost_profiler import profile_memory_cost
 
 def testTimeAdaptation(cfg):
     logger = logging.getLogger("TTA.test_time")
     # model, optimizer
     model = build_model(cfg)
 
-    # remove the image normalization layer of Hendrycks2020AugMix_ResNeXt, aligning with the "Standard" model for cifar10_c
-    # not necessary
-    if cfg.ADAPTER.NAME == 'datta' and cfg.MODEL.ARCH == 'Hendrycks2020AugMix_ResNeXt':
-        for name, buffer in model.named_buffers():
-            if name == "mu":
-                buffer.data = torch.tensor([0.0] * 3).view(1, 3, 1, 1).cuda()
-            elif name == "sigma":
-                buffer.data = torch.tensor([1.0] * 3).view(1, 3, 1, 1).cuda()
-
     optimizer = build_optimizer(cfg)
 
     tta_adapter = build_adapter(cfg)
-    
+
     tta_model = tta_adapter(cfg, model, optimizer)
     tta_model.cuda()
-    torch.cuda.reset_peak_memory_stats()
+
     loader, processor = build_loader(cfg, cfg.CORRUPTION.DATASET, cfg.CORRUPTION.TYPE, cfg.CORRUPTION.SEVERITY)
 
     label_record = []
@@ -52,24 +48,24 @@ def testTimeAdaptation(cfg):
     domain_num = loader.dataset.domain_id_to_name.keys().__len__()
     class_num = cfg.CORRUPTION.NUM_CLASS
 
-    domain_data = {}   # 保存每个域的数据
-    acc_history = []   # 保存所有阶段的评估结果
-
     tbar = tqdm(loader)
-
-    model.eval()
-
+    # profile memory cost
+    # require_backward = True
+    # input_size = (1, 3, 32, 32)
+    # memory_cost, detailed_info = profile_memory_cost(
+	# 	tta_model, input_size, require_backward, activation_bits=32, trainable_param_bits=32,
+	# 	frozen_param_bits=32, batch_size=64,
+	# )
+    # net_info = {
+	# 	'memory_cost': memory_cost / 1e6,
+    # 	'param_size': detailed_info['param_size'] / 1e6,
+    # 	'act_size': detailed_info['act_size'] / 1e6,
+    # }
+    # print(f"Memory cost: {net_info['memory_cost']:.2f} MB | Param size: {net_info['param_size']:.2f} MB | Act size: {net_info['act_size']:.2f} MB")
     prev_domain = 0
-
+    model.eval()
     for batch_id, data_package in enumerate(tbar):
         data, label, domain = data_package["image"], data_package['label'], data_package['domain']
-        domain_id = int(domain[0].item())
-        # 累积保存该域的数据
-        if domain_id not in domain_data:
-            domain_data[domain_id] = {"images": [], "labels": []}
-        domain_data[domain_id]["images"].append(data.cpu())
-        domain_data[domain_id]["labels"].append(label.cpu())
-
         if len(label) == 1:
             torch.cuda.synchronize()
             start = time.time()
@@ -77,11 +73,11 @@ def testTimeAdaptation(cfg):
         label_record.append(label)
         domain_record.append(domain)
         data, label = data.cuda(), label.cuda()
-    
+        domain_id = int(domain[0].item())
         torch.cuda.synchronize()
         start = time.time()
 
-        output = tta_model(data)
+        output = tta_model(data, label)
 
         torch.cuda.synchronize()
         times.extend([(time.time() - start) / len(label)] * len(label))
@@ -99,7 +95,6 @@ def testTimeAdaptation(cfg):
                 tbar.set_postfix(acc=processor.cumulative_acc(), bank=tta_model.mem.get_occupancy())
             else:
                 tbar.set_postfix(acc=processor.cumulative_acc())
-
         # 检查是否切换到新域
         if prev_domain is not None and domain_id != prev_domain:
             if cfg.ADAPTER.NAME == "datta":
@@ -107,66 +102,10 @@ def testTimeAdaptation(cfg):
                 logger.info("resetting model")
             else:
                 logger.warning("not resetting model")
-            tta_model.model.eval()
-            # ===== 对目前所有已有域进行评估 =====
-            accs = []
-            for d in sorted(domain_data.keys()):
-                if d == domain_id:  # 跳过当前域
-                    continue
-                correct = 0
-                imgs_len = 0
-                images_list = domain_data[d]["images"]
-                lbs_list = domain_data[d]["labels"]
-                for i in range(len(images_list)):
-                    imgs = images_list[i].cuda()
-                    lbs = lbs_list[i].cuda()
-                    imgs_len += len(imgs)
-                    with torch.no_grad():
-                        outputs = tta_model.model(imgs)
-                        predicts = outputs.argmax(dim=1)
-                        correct += (predicts == lbs).sum().item()
-                acc = round(correct / imgs_len * 100, 2)
-                accs.append(acc)
-            acc_history.append(accs)
-            tta_model.model.train()
             prev_domain = domain_id
 
     processor.calculate()
 
-    # 计算适应最后一个域后对各域的准确率
-    tta_model.model.eval()
-            # ===== 对目前所有已有域进行评估 =====
-    accs = []
-    for d in sorted(domain_data.keys()):
-        correct = 0
-        imgs_len = 0
-        images_list = domain_data[d]["images"]
-        lbs_list = domain_data[d]["labels"]
-        for i in range(len(images_list)):
-            imgs = images_list[i].cuda()
-            lbs = lbs_list[i].cuda()
-            imgs_len += len(imgs)
-            with torch.no_grad():
-                outputs = tta_model.model(imgs)
-                predicts = outputs.argmax(dim=1)
-                correct += (predicts == lbs).sum().item()
-        acc = round(correct / imgs_len * 100, 2)
-        accs.append(acc)
-    acc_history.append(accs)
-    tta_model.model.train()
-
-    # 计算显存峰值和平均遗忘率
-    peak = torch.cuda.max_memory_allocated()
-    shape = (len(acc_history), [len(row) for row in acc_history])
-    print(shape)
-    n = len(acc_history[-1])  # 总域数
-    diffs = []
-    for i in range(n):
-        first = acc_history[i][i]   # 对角线元素
-        last  = acc_history[-1][i]  # 最后一行同一列
-        diffs.append(first - last)
-    forget = round(sum(diffs) / len(diffs), 2)
-    
     logger.info(f"All Results\n{processor.info()}")
 
     cm = confusion_matrix(gts, preds)
@@ -179,15 +118,7 @@ def testTimeAdaptation(cfg):
         str_ += "%d %.2f\n" % (i, catAvg[i] * 100.)
     str_ += "Avg: %.2f\n" % (catAvg.mean() * 100.)
     logger.info("per domain catAvg:\n" + str_)
-
-    print("Final acc_history:")
-    for i, accs in enumerate(acc_history):
-        print(f"Step {i}: {accs}")
-
-    print(f"forget % : {forget:.2f}")
-
-    print("Peak GPU memory usage: %.2f MB" % (peak / 1024**2))
-
+    # print(f"Memory cost: {net_info['memory_cost']:.2f} MB | Param size: {net_info['param_size']:.2f} MB | Act size: {net_info['act_size']:.2f} MB")
     print('average adaptation time:', np.mean(times))
     pass
 

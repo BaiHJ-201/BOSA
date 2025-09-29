@@ -11,6 +11,7 @@ from .eata import EATA
 from .cotta import CoTTA
 from .petal import PETALFim
 from .datta import DATTA
+from .RT import RT
 from typing import Type  # 导入Type用于类型注解
 # 确保datta模块存在且拼写正确
 
@@ -39,6 +40,10 @@ def build_adapter(cfg) -> Type[BaseAdapter]:
         return PETALFim
     elif cfg.ADAPTER.NAME == "datta":
         return DATTA
+    elif cfg.ADAPTER.NAME == "datta":
+        return DATTA
+    elif cfg.ADAPTER.NAME == "rt":
+        return RT
     else:
         raise NotImplementedError("Implement your own adapter")
 

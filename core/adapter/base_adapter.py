@@ -21,9 +21,9 @@ class BaseAdapter(nn.Module):
         assert self.steps > 0, "requires >= 1 step(s) to forward and update"
         self.model_state, self.optimizer_state = self.copy_model_and_optimizer()
 
-    def forward(self, x):
+    def forward(self, x, y):
         for _ in range(self.steps):
-            outputs = self.forward_and_adapt(x, self.model, self.optimizer)
+            outputs = self.forward_and_adapt(x, y, self.model, self.optimizer)
 
         return outputs
 
@@ -43,7 +43,7 @@ class BaseAdapter(nn.Module):
                 params.append(p)
 
         return params, names
-
+    
     def check_model(self, model):
         pass
 

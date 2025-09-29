@@ -1,5 +1,5 @@
 from yacs.config import CfgNode as CN
-
+import os
 
 _C = CN()
 cfg = _C
@@ -45,7 +45,7 @@ _C.INPUT.TRANSFORMS = ()
 _C.LOADER = CN()
 
 _C.LOADER.SAMPLER = CN()
-_C.LOADER.SAMPLER.TYPE = "sequence"
+_C.LOADER.SAMPLER.TYPE = "temporal"
 # _C.LOADER.SAMPLER.GAMMA = 0.001
 _C.LOADER.SAMPLER.GAMMA = 0.1
 _C.LOADER.SAMPLER.IMB_FACTOR = 1
@@ -55,6 +55,8 @@ _C.LOADER.NUM_WORKS = 2
 
 # ----------------------------- Source loader options ----------------------- #
 # Number of workers for source data loading
+# Path to a specific checkpoint
+_C.CKPT_PATH = ""
 _C.SOURCE = CN()
 _C.SOURCE.NUM_WORKERS = 4
 
@@ -142,10 +144,12 @@ _C.ADAPTER.PETAL.AP = 0.9
 _C.ADAPTER.PETAL.SPW = 1e-8
 _C.ADAPTER.PETAL.PERC = 0.03
 
-_C.ADAPTER.DATTA = CN()
-_C.ADAPTER.DATTA.ALPHA = 0.5
-_C.ADAPTER.DATTA.THETA = 0.8
-    
+_C.ADAPTER.RT = CN()
+_C.ADAPTER.RT.ETA = 0.01
+_C.ADAPTER.RT.GAMMA = 0.
+_C.ADAPTER.RT.Lambda = 1.0
+_C.ADAPTER.RT.e_margin = 0.4
+
 # --------------------------------- Default config -------------------------- #
 _CFG_DEFAULT = _C.clone()
 _CFG_DEFAULT.freeze()

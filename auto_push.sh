@@ -1,20 +1,17 @@
 #!/bin/bash
-git config --global user.name "nocoding-maker"
+# auto_push.sh
 
-# 进入项目目录
-cd /root/TRIBE || exit
+# 1. 确保在项目根目录
+cd "$(dirname "$0")"
 
-# 确保远程仓库已设置
-git remote -v || git remote add origin git@github.com:nocoding-maker/Real-TTA-in-edge.git
+# 2. 拉取最新远程代码，避免冲突
+git pull --rebase origin master
 
-# 拉取最新远程更新，避免冲突
-git pull origin master --rebase
+# 3. 添加所有修改和新文件
+git add -A
 
-# 添加更新（忽略 datasets/）
-git add .
+# 4. 提交，带时间戳信息
+git commit -m "auto commit on $(date '+%Y-%m-%d %H:%M:%S')"
 
-# 提交，自动带时间戳
-git commit -m "Auto update: $(date '+%Y-%m-%d %H:%M:%S')"
-
-# 推送到远程
-git push -u origin master
+# 5. 推送到远程 master 分支
+git push origin master

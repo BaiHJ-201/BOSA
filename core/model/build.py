@@ -6,7 +6,7 @@ import os
 import torch
 from .toy import Toy
 import torch.nn.functional as F
-
+from .wideresnet40 import simplify_wideresnet40
 
 def build_model(cfg):
     if cfg.MODEL.ARCH == "Toy":
@@ -19,7 +19,16 @@ def build_model(cfg):
             dataset = cfg.CORRUPTION.DATASET.replace("gradualC", "c")
         else:
             dataset = cfg.CORRUPTION.DATASET
-        if cfg.ADAPTER.NAME == "petal":
+
+        if cfg.ADAPTER.NAME == "EcoTTA":
+            base_model = load_model(
+                'Hendrycks2020AugMix_WRN',
+                cfg.CKPT_DIR,
+                dataset,
+                ThreatModel.corruptions
+            ).cuda()
+            base_model = simplify_wideresnet40(base_model)   
+        elif cfg.ADAPTER.NAME == "petal":
             base_model, base_mean_model, base_cov_model = load_model_bayes(cfg.MODEL.ARCH, cfg.CKPT_DIR,
                     dataset, ThreatModel.corruptions)
             base_model, base_mean_model, base_cov_model = base_model.cuda(), base_mean_model.cuda(), base_cov_model.cuda()

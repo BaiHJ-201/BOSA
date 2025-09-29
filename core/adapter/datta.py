@@ -10,7 +10,7 @@ import os
 import tqdm
 import PIL
 import torchvision.transforms as transforms
-
+import numpy as np
 
 import torch.nn.functional as F
 from .base_adapter import BaseAdapter
@@ -18,6 +18,53 @@ from ..data.data_loading import get_source_loader
 
 logger = logging.getLogger(__name__)
 
+def to_serializable(obj):
+    if torch.is_tensor(obj):
+        return obj.tolist()
+    elif isinstance(obj, dict):
+        return {k: to_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [to_serializable(v) for v in obj]
+    elif isinstance(obj, tuple):
+        return tuple(to_serializable(v) for v in obj)
+    else:
+        return obj
+
+
+def print_dict_shapes(d, indent=0, max_list_items=3):
+    prefix = " " * indent
+    if isinstance(d, dict):
+        for k, v in d.items():
+            print(f"{prefix}{k}:")
+            print_dict_shapes(v, indent + 2, max_list_items=max_list_items)
+
+    elif isinstance(d, torch.Tensor):
+        print(f"{prefix}Tensor, shape={tuple(d.shape)}, dtype={d.dtype}")
+
+    elif isinstance(d, np.ndarray):
+        print(f"{prefix}ndarray, shape={d.shape}, dtype={d.dtype}")
+
+    elif isinstance(d, list):
+        print(f"{prefix}list of length {len(d)}")
+        for i, item in enumerate(d[:max_list_items]):  # 只打印前几项，防止太长
+            print(f"{prefix}  [{i}]:")
+            print_dict_shapes(item, indent + 4, max_list_items=max_list_items)
+        if len(d) > max_list_items:
+            print(f"{prefix}  ... (only first {max_list_items} shown)")
+
+    else:
+        print(f"{prefix}{type(d)}")
+
+def check_source_loader(source_dataset, source_loader, name="source"):
+    print("=" * 60)
+    print(f"🔍 Checking {name} dataset & dataloader")
+    print(f"- Number of images in dataset: {len(source_dataset)}")
+    print(f"- Number of batches (with batch_size={source_loader.batch_size}): {len(source_loader)}")
+    print(f"- First batch shape: ")
+    for images, labels in source_loader:
+        print(f"  images: {images.shape}, labels: {labels.shape}")
+        break  # 只看第一个 batch
+    print("=" * 60)
 
 def batch_norm(mean, var, X, weight, bias, eps):
 
@@ -93,10 +140,11 @@ class DATTA(BaseAdapter):
             with open(self.path_source_distri) as file:
                 self.source_distri = json.load(file)
         else:
-            _, self.source_dataloader = get_source_loader(dataset_name=cfg.CORRUPTION.DATASET,
+            self.source_dataset, self.source_dataloader = get_source_loader(dataset_name=cfg.CORRUPTION.DATASET,
                                                    root_dir=cfg.DATA_DIR,
                                                    batch_size=128, ckpt_path=cfg.CKPT_PATH,
                                                    workers=min(cfg.SOURCE.NUM_WORKERS, os.cpu_count()))
+            check_source_loader(self.source_dataset, self.source_dataloader, name="source")
             if not os.path.exists(dir_source_distri):
                 os.makedirs(dir_source_distri, exist_ok=True)
             logger.info("Pre-compute source distribution statistics...")
@@ -111,53 +159,65 @@ class DATTA(BaseAdapter):
             result = {'means': [], 'vars': []}
             for name in ['means', 'vars']:
                 result[name] = [sum(values) / len(values) for values in zip(*data[name][layer])]
+                result[name] = torch.tensor(result['means'], dtype=torch.float)
             return result
 
         model = self.model
         avg_per_batch = {'means': [], 'vars': []}
+        batch_num = 0
         for data in tqdm.tqdm(self.source_dataloader):
+            batch_num += 1
             x = data[0].cuda()
             for m in model.modules():
                 if isinstance(m, MyBatchNorm):
                     m.reset_statistic()
             _ = model(x)
-            stat = list(self.stat_outputs.values())
 
+            stat = list(self.stat_outputs.values())
+            
             stats = [item for pair in stat for item in pair]
+
+            # [("m1", "v1"), ("m2", "v2"),("m3", "v3"),] ->["m1", "v1", "m2", "v2", "m3", "v3"]
+            # m1, v1, m2, v2分别是第一、第二个改良BN层的统计量，m\v都是[Batch,Channl]的张量
             # print(len(stats))  # 53 * 2 len if imagenet(resnet50), 31 * 2 if cifar100C, 25 * 2 if cifar10c, 170*2 if res2net
             for i in range(len(stats)):
                 stats[i] = stats[i].cpu().tolist()
             stats_one_batch = {'means': [], 'vars': []}
             for i, stat in enumerate(stats):
                 if i % 2 == 0:
+                    # 每个层的一个batch内的特征的均值
                     stats_one_batch['means'].append(stat)
                 else:
+                    # 每个层的一个batch内的特征的方差
                     stats_one_batch['vars'].append(stat)
             for i in range(len(stats_one_batch['means'])):
+                # 对每个层的batch求均值
                 result = avg_batch(stats_one_batch, i)
+                # if i == 0 or i == 1:
+                #     print_dict_shapes(result)
+                # 对每个batch的数据就相加
                 if len(avg_per_batch['means']) == len(stats) / 2:
-                    avg_per_batch['means'][i] += result['means']
-                    avg_per_batch['vars'][i] += result['vars']
+                    avg_per_batch['means'][i] = avg_per_batch['means'][i] + result['means']
+                    avg_per_batch['vars'][i] = avg_per_batch['vars'][i] + result['vars']
                 else:  # for first batch
                     avg_per_batch['means'].append(result['means'])
                     avg_per_batch['vars'].append(result['vars'])
+        print_dict_shapes(avg_per_batch)
+        print(batch_num)
         avg_all_batch = {'means': [], 'vars': []}
         for layer in range(len(avg_per_batch['means'])):
-            result = avg_batch(stats_one_batch, layer)
-            if len(stats_one_batch['means']) == len(stats) / 2:
-                avg_all_batch['means'].append(result['means'])
-                avg_all_batch['vars'].append(result['vars'])
+            avg_all_batch['means'].append(avg_per_batch['means'][layer] / batch_num)
+            avg_all_batch['vars'].append(avg_per_batch['vars'][layer] / batch_num)
         assert len(avg_all_batch['vars']) == len(stats) / 2
         assert len(avg_all_batch['means']) == len(stats) / 2
-
+        
         with open(self.path_source_distri, 'w') as f:
             f.write(json.dumps(
                 {
-                    "stats": avg_all_batch,
+                    "stats": to_serializable(avg_all_batch)
                 },
                 indent=4,
             ))
-
     def replace_bn_with_custom(self, model: nn.Module, custom_bn):
         for name, module in model.named_children():
             if isinstance(module, nn.BatchNorm2d):
@@ -211,23 +271,23 @@ class DATTA(BaseAdapter):
         stat = list(self.stat_outputs.values())
 
         # confidence threshold
-        confidence = torch.softmax(outputs, dim=1)
-        outputs_above_threshold = []
-        for j in range(confidence.shape[0]):
-            if torch.max(confidence[j]) > self.theta:
-                outputs_above_threshold.append(outputs[j])
+        # confidence = torch.softmax(outputs, dim=1)
+        # outputs_above_threshold = []
+        # for j in range(confidence.shape[0]):
+        #     if torch.max(confidence[j]) > self.theta:
+        #         outputs_above_threshold.append(outputs[j])
 
-        loss_stat = stat_loss(stat, self.source_distri['stats'])
-        if len(outputs_above_threshold) != 0:
-            outputs_above_threshold = torch.stack(outputs_above_threshold)
-            loss_em = softmax_entropy(outputs_above_threshold).mean(0)
-            loss = loss_stat + loss_em
-        else:
-            loss = loss_stat
+        # loss_stat = stat_loss(stat, self.source_distri['stats'])
+        # if len(outputs_above_threshold) != 0:
+        #     outputs_above_threshold = torch.stack(outputs_above_threshold)
+        #     loss_em = softmax_entropy(outputs_above_threshold).mean(0)
+        #     loss = loss_stat + loss_em
+        # else:
+        #     loss = loss_stat
 
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
+        # loss.backward()
+        # optimizer.step()
+        # optimizer.zero_grad()
 
         self.stat_outputs = {}
         return outputs
