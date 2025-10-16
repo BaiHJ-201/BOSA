@@ -102,7 +102,7 @@ class RT(BaseAdapter):
         else:
             loss_ent = torch.tensor(0.0, device=outputs.device)
 
-        # --- reg_loss 只计算可靠样本 ---
+        # --- reg_loss  ---
         reg_loss = 0.0
         for m in model.modules():
             if isinstance(m, BNWithSideBranch) and m.btsloss is not None:

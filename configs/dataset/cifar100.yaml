@@ -21,18 +21,18 @@ CORRUPTION:
   SEVERITY:
     - 5
   TYPE:
-    - brightness
-    - glass_blur
-    - jpeg_compression
     - contrast
     - defocus_blur
+    - gaussian_noise
+    - shot_noise
+    - snow
+    - frost
+    - glass_blur
+    - zoom_blur
+    - elastic_transform
+    - jpeg_compression
+    - pixelate
+    - brightness
     - impulse_noise
     - motion_blur
-    - snow
-    - zoom_blur
-    - frost
-    - pixelate
-    - gaussian_noise
-    - elastic_transform
-    - shot_noise
     - fog

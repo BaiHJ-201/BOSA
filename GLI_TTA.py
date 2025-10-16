@@ -44,7 +44,7 @@ def testTimeAdaptation(cfg):
     gts = []
 
     times = []
-
+    
     domain_num = loader.dataset.domain_id_to_name.keys().__len__()
     class_num = cfg.CORRUPTION.NUM_CLASS
 
@@ -64,12 +64,16 @@ def testTimeAdaptation(cfg):
     # print(f"Memory cost: {net_info['memory_cost']:.2f} MB | Param size: {net_info['param_size']:.2f} MB | Act size: {net_info['act_size']:.2f} MB")
     prev_domain = 0
     model.eval()
+    first5_labels = []
     for batch_id, data_package in enumerate(tbar):
         data, label, domain = data_package["image"], data_package['label'], data_package['domain']
         if len(label) == 1:
             torch.cuda.synchronize()
             start = time.time()
             continue  # ignore the final single point
+        # -------------------- 新增部分：保存batch的label --------------------
+        first5_labels.append(label.cpu().numpy().tolist())
+        # ------------------------------------------------------------------
         label_record.append(label)
         domain_record.append(domain)
         data, label = data.cuda(), label.cuda()
@@ -77,7 +81,7 @@ def testTimeAdaptation(cfg):
         torch.cuda.synchronize()
         start = time.time()
 
-        output = tta_model(data, label)
+        output = tta_model(data)
 
         torch.cuda.synchronize()
         times.extend([(time.time() - start) / len(label)] * len(label))
@@ -97,13 +101,23 @@ def testTimeAdaptation(cfg):
                 tbar.set_postfix(acc=processor.cumulative_acc())
         # 检查是否切换到新域
         if prev_domain is not None and domain_id != prev_domain:
-            if cfg.ADAPTER.NAME == "datta":
+            if cfg.ADAPTER.NAME == "datta" or cfg.ADAPTER.NAME == "bn":
                 tta_model.reset()
                 logger.info("resetting model")
             else:
                 logger.warning("not resetting model")
             prev_domain = domain_id
+    # -------------------- 循环结束后：写入txt文件 --------------------
+    save_dir = "./logs"
+    os.makedirs(save_dir, exist_ok=True)
+    label_txt_path = os.path.join(save_dir, "first5_batch_labels.txt")
 
+    with open(label_txt_path, "w") as f:
+        for batch_labels in first5_labels:
+            f.write(" ".join(map(str, batch_labels)) + "\n")
+
+    print(f"✅ 前5个batch的标签已保存到: {label_txt_path}")
+    # -----------------------------------------------------------------
     processor.calculate()
 
     logger.info(f"All Results\n{processor.info()}")

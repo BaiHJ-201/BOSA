@@ -37,10 +37,10 @@ class EcoTTA(BaseAdapter):
             self.e_margin = math.log(100)*cfg.ADAPTER.RT.e_margin
     @torch.enable_grad()
     def forward_and_adapt(self, batch_data, label, model, optimizer):
-        optimizer_TTA.zero_grad()
-        set_cal_mseloss(net, True)
+        optimizer.zero_grad()
+        set_cal_mseloss(model, True)
 
-        self.set_bn_side_label(model, label)
+        self.set_bn_label(model, label)
         outputs = model(batch_data)         
         loss_reg_all = 0.
 
@@ -52,7 +52,7 @@ class EcoTTA(BaseAdapter):
         optimizer.step()
         optimizer.zero_grad()
 
-        set_cal_mseloss(net, False)
+        set_cal_mseloss(model, False)
         model.eval()
         outputs = model(batch_data)
         loss_ent = entropy_minmization(outputs,e_margin=self.e_margin)
@@ -60,7 +60,7 @@ class EcoTTA(BaseAdapter):
         optimizer.step()
         optimizer.zero_grad()
         
-        return ema_out
+        return outputs
     
     @staticmethod
     def set_bn_label(model, label=None):

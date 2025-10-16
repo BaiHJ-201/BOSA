@@ -89,7 +89,7 @@ _C.CUDNN.BENCHMARK = True
 # ---------------------------------- Misc options --------------------------- #
 
 _C.DESC = ""
-_C.SEED = 425
+_C.SEED = 426
 _C.OUTPUT_DIR = "./output"
 _C.DATA_DIR = "./datasets"
 _C.CKPT_DIR = "./ckpt"
@@ -143,6 +143,10 @@ _C.ADAPTER.PETAL.RST_M = 0.1
 _C.ADAPTER.PETAL.AP = 0.9
 _C.ADAPTER.PETAL.SPW = 1e-8
 _C.ADAPTER.PETAL.PERC = 0.03
+
+_C.ADAPTER.DATTA = CN()
+_C.ADAPTER.DATTA.ALPHA = 0.5
+_C.ADAPTER.DATTA.THETA = 0.8
 
 _C.ADAPTER.RT = CN()
 _C.ADAPTER.RT.ETA = 0.01

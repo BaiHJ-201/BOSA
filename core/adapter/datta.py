@@ -80,7 +80,7 @@ def batch_norm(mean, var, X, weight, bias, eps):
 
 class MyBatchNorm(nn.Module):
 
-    def __init__(self, bn_init: nn.BatchNorm2d, datta_alpha=0.5):
+    def __init__(self, bn_init: nn.BatchNorm2d, datta_alpha=0.0):
         super().__init__()
 
         try:
@@ -271,23 +271,23 @@ class DATTA(BaseAdapter):
         stat = list(self.stat_outputs.values())
 
         # confidence threshold
-        # confidence = torch.softmax(outputs, dim=1)
-        # outputs_above_threshold = []
-        # for j in range(confidence.shape[0]):
-        #     if torch.max(confidence[j]) > self.theta:
-        #         outputs_above_threshold.append(outputs[j])
+        confidence = torch.softmax(outputs, dim=1)
+        outputs_above_threshold = []
+        for j in range(confidence.shape[0]):
+            if torch.max(confidence[j]) > self.theta:
+                outputs_above_threshold.append(outputs[j])
 
-        # loss_stat = stat_loss(stat, self.source_distri['stats'])
-        # if len(outputs_above_threshold) != 0:
-        #     outputs_above_threshold = torch.stack(outputs_above_threshold)
-        #     loss_em = softmax_entropy(outputs_above_threshold).mean(0)
-        #     loss = loss_stat + loss_em
-        # else:
-        #     loss = loss_stat
+        loss_stat = stat_loss(stat, self.source_distri['stats'])
+        if len(outputs_above_threshold) != 0:
+            outputs_above_threshold = torch.stack(outputs_above_threshold)
+            loss_em = softmax_entropy(outputs_above_threshold).mean(0)
+            loss = loss_stat + loss_em
+        else:
+            loss = loss_stat
 
-        # loss.backward()
-        # optimizer.step()
-        # optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
 
         self.stat_outputs = {}
         return outputs

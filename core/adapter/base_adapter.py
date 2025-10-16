@@ -19,11 +19,11 @@ class BaseAdapter(nn.Module):
 
         self.steps = self.cfg.OPTIM.STEPS
         assert self.steps > 0, "requires >= 1 step(s) to forward and update"
-        self.model_state, self.optimizer_state = self.copy_model_and_optimizer()
+        # self.model_state, self.optimizer_state = self.copy_model_and_optimizer()
 
-    def forward(self, x, y):
+    def forward(self, x):
         for _ in range(self.steps):
-            outputs = self.forward_and_adapt(x, y, self.model, self.optimizer)
+            outputs = self.forward_and_adapt(x, self.model, self.optimizer)
 
         return outputs
 
@@ -57,12 +57,6 @@ class BaseAdapter(nn.Module):
             param.detach_()
         return ema_model
     
-    def copy_model_and_optimizer(self):
-        """Copy the model and optimizer states for resetting after adaptation."""
-        model_state = deepcopy(self.model.state_dict())
-        optimizer_state = deepcopy(self.optimizer.state_dict())
-        return model_state, optimizer_state
-
 
 @torch.jit.script
 def softmax_entropy(x, x_ema):

@@ -63,6 +63,20 @@ def count_activation_size(net, input_size=(1, 3, 224, 224), require_backward=Tru
 		# temporary memory footprint required by inference
 		m.tmp_activations = torch.Tensor([x[0].numel() * act_byte])  # bytes
 
+	def count_balanced_bn(m, x, _):
+		base = x[0].numel() * act_byte  # 输入激活大小
+		tmp = base
+		
+		# 如果有 label 统计，还会额外生成 delta_pre, delta_k 等中间张量
+		if m.label is not None:
+			tmp += x[0].numel() * act_byte * 2  # 粗略估算 update_statistics 的额外内存
+		
+		# 梯度激活
+		grad = base if (m.weight is not None and m.weight.requires_grad) else 0
+		
+		m.grad_activations = torch.Tensor([grad])
+		m.tmp_activations = torch.Tensor([tmp])
+		
 	# noinspection PyArgumentList
 	def count_relu(m, x, _):
 		# count activation size required by backward
