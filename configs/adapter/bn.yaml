@@ -1,2 +1,12 @@
+OPTIM:
+  METHOD: Adam
+  STEPS: 1
+  BETA: 0.9
+  LR: 1e-5
+  WD: 0.
+
 ADAPTER:
   NAME: bn
+  BN:
+   ALPHA: 0.5
+   THETA: 0.8

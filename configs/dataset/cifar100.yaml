@@ -13,7 +13,7 @@ TEST:
   BATCH_SIZE: 64
 
 OPTIM:
-  LR: 1e-3
+  LR: 1e-5
 
 CORRUPTION:
   DATASET: cifar100

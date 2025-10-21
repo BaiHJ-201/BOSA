@@ -154,6 +154,10 @@ _C.ADAPTER.RT.GAMMA = 0.
 _C.ADAPTER.RT.Lambda = 1.0
 _C.ADAPTER.RT.e_margin = 0.4
 
+_C.ADAPTER.BN = CN()
+_C.ADAPTER.BN.ALPHA = 0.5
+_C.ADAPTER.BN.THETA = 0.8
+
 # --------------------------------- Default config -------------------------- #
 _CFG_DEFAULT = _C.clone()
 _CFG_DEFAULT.freeze()
