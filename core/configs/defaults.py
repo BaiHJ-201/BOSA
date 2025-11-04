@@ -156,7 +156,11 @@ _C.ADAPTER.RT.e_margin = 0.4
 
 _C.ADAPTER.BN = CN()
 _C.ADAPTER.BN.ALPHA = 0.5
+_C.ADAPTER.BN.GAMMA = 0.2
 _C.ADAPTER.BN.THETA = 0.8
+
+_C.ADAPTER.NORM = CN()
+_C.ADAPTER.NORM.MOMENTUM = 1.0
 
 # --------------------------------- Default config -------------------------- #
 _CFG_DEFAULT = _C.clone()

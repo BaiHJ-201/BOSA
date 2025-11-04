@@ -73,7 +73,10 @@ class TRIBE(BaseAdapter):
             if isinstance(sub_module, BalancedRobustBN1dV5) or isinstance(sub_module, BalancedRobustBN2dV5) or isinstance(sub_module, BalancedRobustBN2dEMA):
                 sub_module.label = label
         return
-    
+    def reset(self):
+        for name, module in self.model.named_modules():
+            if isinstance(module, (BalancedRobustBN2dV5, BalancedRobustBN1dV5)):
+                module.reset_statistic()
     @staticmethod
     def self_softmax_entropy(x):
         return -(x.softmax(dim=-1) * x.log_softmax(dim=-1)).sum(dim=-1)

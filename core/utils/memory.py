@@ -48,13 +48,21 @@ class CSTU:
         return per_class_occupied
 
     def add_instance(self, instance):
-        assert (len(instance) == 3)
+        assert len(instance) == 3
         x, prediction, uncertainty = instance
-        new_item = MemoryItem(data=x, uncertainty=uncertainty, age=0)
-        new_score = self.heuristic_score(0, uncertainty)
-        if self.remove_instance(prediction, new_score):
-            self.data[prediction].append(new_item)
-        self.add_age()
+        new_item = MemoryItem(data=x, uncertainty=uncertainty, age=0)  # age 可以保留或忽略
+        # new_score = self.heuristic_score(0, uncertainty)
+        # if self.remove_instance(prediction, new_score):
+        #     self.data[prediction].append(new_item)
+        # self.add_age()
+        class_list = self.data[prediction]
+
+        if len(class_list) < self.per_class:  # 未满，直接加入
+            class_list.append(new_item)
+        else:  # 已满，比较 uncertainty
+            max_idx, max_unc = max(enumerate(class_list), key=lambda t: t[1].uncertainty)
+            if uncertainty < max_unc.uncertainty:  
+                class_list[max_idx] = new_item
 
     def remove_instance(self, cls, score):
         class_list = self.data[cls]
@@ -123,7 +131,10 @@ class CSTU:
         tmp_age = [x / self.capacity for x in tmp_age]
 
         return tmp_data, tmp_age
-
+    def is_balanced(self):
+        per_class_occupied = self.per_class_dist()  # 每个类别当前有多少样本
+        # 检查是否所有类别都达到了 per_class 的容量
+        return all(occupied >= self.per_class for occupied in per_class_occupied)
 
 class PBRS():
 

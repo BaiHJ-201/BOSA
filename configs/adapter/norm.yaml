@@ -1,0 +1,4 @@
+ADAPTER:
+  NAME: norm
+  NORM:
+   MOMENTUM: 1.0

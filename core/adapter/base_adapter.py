@@ -23,7 +23,7 @@ class BaseAdapter(nn.Module):
 
     def forward(self, x):
         for _ in range(self.steps):
-            outputs = self.forward_and_adapt(x, self.model, self.optimizer)
+            outputs = self.forward_and_adapt(x)
 
         return outputs
 

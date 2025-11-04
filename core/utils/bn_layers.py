@@ -73,7 +73,7 @@ class BalancedBNV5(nn.Module):
         self.eps = bn_layer.eps
         self.momentum = momentum_a
         self.gamma = gamma
-
+        self.reset_mean = True
         if bn_layer.track_running_stats and bn_layer.running_var is not None and bn_layer.running_mean is not None:
             self.register_buffer("global_mean", deepcopy(bn_layer.running_mean))
             self.register_buffer("global_var", deepcopy(bn_layer.running_var))
@@ -92,7 +92,9 @@ class BalancedBNV5(nn.Module):
         self.local_mean = self.local_mean.detach()
         self.local_var = self.local_var.detach()
 
-   
+    def reset_statistic(self):
+        self.reset_mean = True
+
 class BalancedRobustBN1dV5(BalancedBNV5):
     def forward(self, x):
         super().forward(x)
@@ -101,10 +103,11 @@ class BalancedRobustBN1dV5(BalancedBNV5):
         x = x.permute(0, 2, 1)
         label = self.label
         if label is not None:
-            balanced_bn.update_statistics_1d_v5(self.local_mean, self.local_var, self.global_mean, self.global_var, self.momentum, x, label, self.gamma, self.training)
+            self.reset_mean = balanced_bn.update_statistics_1d_v5(self.local_mean, self.local_var, self.global_mean, self.global_var, self.momentum, x, label, self.reset_mean, self.gamma, self.training)
             self.label = None
         else:
-            if self.training:
+            if self.training and self.reset_mean:
+                # self.reset_mean = False
                 b_var, b_mean = torch.var_mean(x, dim=[0, 2], unbiased=False, keepdim=False)  # (C,)
                 self.global_mean = (1 - self.momentum) * self.global_mean + self.momentum * b_mean
                 self.global_var = (1 - self.momentum) * self.global_var + self.momentum * b_var
@@ -117,17 +120,18 @@ class BalancedRobustBN2dV5(BalancedBNV5):
     def forward(self, x):
         super().forward(x)
         label = self.label
+        
         if label is not None:
-            balanced_bn.update_statistics_2d_v5(self.local_mean, self.local_var, self.global_mean, self.global_var, self.momentum, x, label, self.gamma, self.training)
+            self.reset_mean = balanced_bn.update_statistics_2d_v5(self.local_mean, self.local_var, self.global_mean, self.global_var, self.momentum, x, label, self.reset_mean, self.gamma, self.training)
             self.label = None
         else:
-            if self.training:
+            if self.training and self.reset_mean:
+                # self.reset_mean = False
                 b_var, b_mean = torch.var_mean(x, dim=[0, 2, 3], unbiased=False, keepdim=False)  # (C,)
                 self.global_mean = (1 - self.momentum) * self.global_mean + self.momentum * b_mean
                 self.global_var = (1 - self.momentum) * self.global_var + self.momentum * b_var
         x = (x - self.global_mean[None, :, None, None]) / torch.sqrt(self.global_var[None, :, None, None] + self.eps)
         return self.weight[None, :, None, None] * x + self.bias[None, :, None, None] 
-
 
 
 class BalancedBNEMA(nn.Module):
