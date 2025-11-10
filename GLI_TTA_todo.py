@@ -35,8 +35,8 @@ def testTimeAdaptation(cfg):
     tta_model = tta_adapter(cfg, model, optimizer)
     tta_model.cuda()
 
-    # loader, processor = build_loader(cfg, cfg.CORRUPTION.DATASET, cfg.CORRUPTION.TYPE, cfg.CORRUPTION.SEVERITY)
     loader, processor = build_loader(cfg, cfg.CORRUPTION.DATASET, cfg.CORRUPTION.TYPE, cfg.CORRUPTION.SEVERITY)
+    # loader, processor, memory_buffer = build_loader(cfg, cfg.CORRUPTION.DATASET, cfg.CORRUPTION.TYPE, cfg.CORRUPTION.SEVERITY)
 
     label_record = []
     domain_record = []
@@ -66,8 +66,10 @@ def testTimeAdaptation(cfg):
     prev_domain = 0
     model.eval()
     processed_domains = set()  # 记录已处理过的 domain
+    balance = False
     for batch_id, data_package in enumerate(tbar):
         data, label, domain = data_package["image"], data_package['label'], data_package['domain']
+
         if len(label) == 1:
             torch.cuda.synchronize()
             start = time.time()
@@ -77,15 +79,21 @@ def testTimeAdaptation(cfg):
         domain_record.append(domain)
         data, label = data.cuda(), label.cuda()
         domain_id = int(domain[0].item())
-
         # 检查是否切换到新域
-        if prev_domain is not None and domain_id != prev_domain:
-            if cfg.ADAPTER.NAME == "datta" or cfg.ADAPTER.NAME == "bn":
-                tta_model.reset()
-                logger.info("resetting model")
-            else:
-                logger.warning("not resetting model")
-            prev_domain = domain_id
+        # if prev_domain is not None and domain_id != prev_domain:
+        #     if str(cfg.ADAPTER.NAME) in ["datta", "bn", "tribe"]:
+        #         tta_model.reset()
+        #         balance = False
+        #         #清空 memory buffer
+        #         if hasattr(tta_model, "mem") and hasattr(tta_model.mem, "data"):
+        #             for class_list in tta_model.mem.data:
+        #                 class_list.clear()
+        #             logger.info("Memory buffer cleared due to domain switch.")
+        #         else:
+        #             logger.warning("No memory buffer found in tta_model.")
+        #     else:
+        #         logger.warning("not resetting model")
+        #     prev_domain = domain_id
 
         # # ✅ 检查是否为该域的第一个 batch
         # if domain_id not in processed_domains:
@@ -100,12 +108,31 @@ def testTimeAdaptation(cfg):
 
         torch.cuda.synchronize()
         start = time.time()
-        
+       
         output = tta_model(data)
-
+        # 🔍 检查 buffer 是否平衡`
+        if balance == False and tta_model.mem.is_balanced():
+            print(f"✅ Buffer reached balance at batch {batch_id}")
+            balance = True
         torch.cuda.synchronize()
         times.extend([(time.time() - start) / len(label)] * len(label))
 
+        # 检查是否切换到新域
+        if prev_domain is not None and domain_id != prev_domain:
+            if str(cfg.ADAPTER.NAME) in ["datta", "bn", "tribe"]:
+                tta_model.reset()
+                balance = False
+                #清空 memory buffer
+                if hasattr(tta_model, "mem") and hasattr(tta_model.mem, "data"):
+                    for class_list in tta_model.mem.data:
+                        class_list.clear()
+                    logger.info("Memory buffer cleared due to domain switch.")
+                else:
+                    logger.warning("No memory buffer found in tta_model.")
+            else:
+                logger.warning("not resetting model")
+            prev_domain = domain_id
+        
         predict = torch.argmax(output, dim=1)
         accurate = (predict == label)
         
@@ -213,3 +240,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
