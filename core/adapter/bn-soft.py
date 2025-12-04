@@ -4,6 +4,8 @@ from ..utils import memory
 from .base_adapter import BaseAdapter
 import torch.nn.functional as F
 import os
+import math
+import copy
 # 适用于cifar100c数据集的代码
 # 其每个batch，都利用buffer数据更新统计量，每次都从源域统计量开始更新
 def batch_norm(mean, var, X, weight, bias, eps):
@@ -13,6 +15,7 @@ def batch_norm(mean, var, X, weight, bias, eps):
     Y = weight * X_hat + bias  # Scale and shift
 
     return Y
+
 def mmd_divergence(mean1, var1, mean2, var2):
     d1 = torch.sqrt((var1 - var2) ** 2 + (mean1 - mean2) ** 2)
     return d1
@@ -33,30 +36,58 @@ def gauss_symm_kl_divergence(mean1, var1, mean2, var2, eps):
 class MyBatchNorm(nn.Module):
     def __init__(self, bn_init: nn.BatchNorm2d, datta_alpha=0.5):
         super().__init__()
-        self.register_buffer("running_mean", bn_init.running_mean.clone().detach().unsqueeze(0).unsqueeze(-1).unsqueeze(-1))
-        self.register_buffer("running_var", bn_init.running_var.clone().detach().unsqueeze(0).unsqueeze(-1).unsqueeze(-1))
-        self.weight = nn.Parameter(bn_init.weight.clone().detach().unsqueeze(0).unsqueeze(-1).unsqueeze(-1))
-        self.bias = nn.Parameter(bn_init.bias.clone().detach().unsqueeze(0).unsqueeze(-1).unsqueeze(-1))
-
+        self.register_buffer("running_mean", bn_init.running_mean.clone().detach().view(1, -1, 1, 1))
+        self.register_buffer("running_var", bn_init.running_var.clone().detach().view(1, -1, 1, 1))
+        self.source_weight = nn.Parameter(bn_init.weight.clone().detach().view(1, -1, 1, 1))
+        self.source_bias = nn.Parameter(bn_init.bias.clone().detach().view(1, -1, 1, 1))
+        self.weight = nn.Parameter(bn_init.weight.clone().detach().view(1, -1, 1, 1))
+        self.bias = nn.Parameter(bn_init.bias.clone().detach().view(1, -1, 1, 1))
         self.eps = 1e-5
-        self.register_buffer("mu", bn_init.running_mean.clone().detach().unsqueeze(0).unsqueeze(-1).unsqueeze(-1))
-        self.register_buffer("sigma", bn_init.running_var.clone().detach().unsqueeze(0).unsqueeze(-1).unsqueeze(-1))
-        
+        self.register_buffer("mu", bn_init.running_mean.clone().detach().view(1, -1, 1, 1))
+        self.register_buffer("sigma", bn_init.running_var.clone().detach().view(1, -1, 1, 1))
+        self.lambda_bn_d = 0.1
         self.alpha = datta_alpha
-    
+
+    @torch.no_grad()
+    def regularize_statistics(self):
+        gradient_mean = 2 * (self.mu - self.running_mean)
+
+        target_std = torch.sqrt(self.sigma + self.eps)
+        source_std = torch.sqrt(self.running_var + self.eps)
+        gradient_std = 2 * target_std - 2 * source_std
+
+        target_std = target_std - self.lambda_bn_d * gradient_std
+
+        self.mu.copy_(self.mu - self.lambda_bn_d * gradient_mean)
+        self.sigma.copy_(target_std ** 2)
+
+    def get_soft_alignment_loss_weight(self):
+        # return F.mse_loss(self.weight, self.source_weight) + F.mse_loss(self.bias, self.source_bias)
+        return torch.sum((self.weight - self.source_weight) ** 2) + torch.sum((self.bias - self.source_bias) ** 2)
+
     def forward(self, X):
         if getattr(self, "calibrate_mode", False):
+
             # 当前 batch 的统计量
             buffer_mean = torch.mean(X, dim=(0, 2, 3), keepdim=True).clone()
-            buffer_var = torch.mean((X - self.mu) ** 2, dim=(0, 2, 3), keepdim=True).clone()
+            buffer_var = torch.var(X, dim=(0, 2, 3), keepdim=True, unbiased=True).clone()
             dist = gauss_symm_kl_divergence(
                 buffer_mean, buffer_var, self.mu, self.sigma, eps=self.eps)
-            adaptive_alpha = 1. - torch.exp(- 50.0 * dist.mean())
-            print(f"dist.mean(): {dist.mean()}")
-            print(f"adaptive_alpha: {adaptive_alpha}")
+          
+            adaptive_alpha = 1. - torch.exp(- 0.1 * dist.mean())
             self.alpha = adaptive_alpha.item()
             self.mu.data = self.alpha * buffer_mean + (1 - self.alpha) * self.mu.data.clone()
             self.sigma.data = self.alpha * buffer_var + (1 - self.alpha) * self.sigma.data.clone()
+            # self.regularize_statistics()
+            adaptive_alpha = 1. - torch.exp(- 0.1 * dist.mean())
+            self.lambda_bn_d = adaptive_alpha.item()
+            gradient_mean = 2 * (self.mu - self.running_mean)
+            target_std = torch.sqrt(self.sigma + self.eps)
+            source_std = torch.sqrt(self.running_var + self.eps)
+            gradient_std = 2 * target_std - 2 * source_std
+            target_std = target_std - self.lambda_bn_d * gradient_std
+            self.mu.copy_(self.mu - self.lambda_bn_d * gradient_mean)
+            self.sigma.copy_(target_std ** 2)
 
         Y = batch_norm(self.mu, self.sigma, X, self.weight, self.bias, eps=self.eps)
 
@@ -69,18 +100,25 @@ class BN(BaseAdapter):
         super(BN, self).__init__(cfg, model, optimizer)
         self.mem = memory.CSTU(capacity=self.cfg.ADAPTER.RoTTA.MEMORY_SIZE, num_class=cfg.CORRUPTION.NUM_CLASS, lambda_t=cfg.ADAPTER.RoTTA.LAMBDA_T, lambda_u=cfg.ADAPTER.RoTTA.LAMBDA_U)
         self.has_calibrate = False
+        self.margin = 0.4*math.log(100)
+        self.lambda_bn_w = 3.0
+        self.ema_decay = 0.9
+        self.teacher = copy.deepcopy(self.model)
+        self.teacher.eval()
+        for p in self.teacher.parameters():
+            p.requires_grad = False
         return
 
     def forward_and_adapt(self, batch_data, y):
-        outputs = self.model(batch_data)
+        batch_size = len(batch_data)
         with torch.no_grad():
             outputs = self.model(batch_data)
-            predict = torch.softmax(outputs, dim=1)
+            predict = torch.softmax(outputs_1, dim=1)
             pseudo_label = torch.argmax(predict, dim=1)
             entropy = torch.sum(- predict * torch.log(predict + 1e-6), dim=1)
         # add into memory
         for i, data in enumerate(batch_data):
-            p_l = y[i].item()
+            p_l = pseudo_label[i].item()
             uncertainty = entropy[i].item()
             current_instance = (data, p_l, uncertainty)
             self.mem.add_instance(current_instance)
@@ -91,18 +129,26 @@ class BN(BaseAdapter):
         self.calibrate_with_buffer()
         outputs = self.model(batch_data)
         # confidence threshold
-        confidence = torch.softmax(outputs, dim=1)
-        outputs_above_threshold = []
-        for j in range(confidence.shape[0]):
-            if torch.max(confidence[j]) > self.theta:
-                outputs_above_threshold.append(outputs[j])
+        # entropy = softmax_entropy(outputs)
+        # filter = torch.where(entropy < self.margin)[0]  
+        # ratio = len(filter) / batch_size if batch_size > 0 else 0.0
+        # print(f"filter_ids_1占内存样本比例: {ratio:.4f} ({len(filter)}/{batch_size})")
+        # entropy = entropy[filter]
+        # loss = entropy.mean(0)
+        # if self.lambda_bn_w > 0:
 
-        if len(outputs_above_threshold) != 0:
-            outputs_above_threshold = torch.stack(outputs_above_threshold)
-            loss = softmax_entropy(outputs_above_threshold).mean(0) 
-            loss.backward()
-            self.optimizer.step()
-            self.optimizer.zero_grad()
+        #     l_soft_alignment = []
+        #     for m in self.model.modules():
+        #         if isinstance(m, MyBatchNorm):
+        #             l_soft_alignment.append(m.get_soft_alignment_loss_weight())
+        #     l_soft_alignment = torch.stack(l_soft_alignment).sum()
+        #     l_soft_alignment = l_soft_alignment * self.lambda_bn_w
+        # else:
+        #     l_soft_alignment = torch.tensor(0.0).cuda()
+        # loss += l_soft_alignment
+        # loss.backward()
+        self.optimizer.step()
+        self.optimizer.zero_grad()
         
         return outputs
 
@@ -137,6 +183,10 @@ class BN(BaseAdapter):
         for m in self.model.modules():
             if isinstance(m, MyBatchNorm):
                 m.calibrate_mode = False
+    @torch.no_grad()
+    def update_teacher(self):
+        for t_params, s_params in zip(self.teacher.parameters(), self.model.parameters()):
+            t_params.data.mul_(self.ema_decay).add_(s_params.data * (1 - self.ema_decay))
 
 @torch.jit.script
 def softmax_entropy(x: torch.Tensor) -> torch.Tensor:
