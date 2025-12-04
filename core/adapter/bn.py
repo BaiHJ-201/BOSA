@@ -114,6 +114,18 @@ class MyBatchNorm(nn.Module):
             self.mu.data = self.alpha * buffer_mean + (1 - self.alpha) * self.mu.data.clone()
             self.sigma.data = self.alpha * buffer_var + (1 - self.alpha) * self.sigma.data.clone()
             # self.regularize_statistics()
+            adaptive_alpha = 1. - torch.exp(- 0.1 * dist.mean())
+            self.alpha = adaptive_alpha.item()
+            gradient_mean = 2 * (self.mu - self.running_mean)
+
+            target_std = torch.sqrt(self.sigma + self.eps)
+            source_std = torch.sqrt(self.running_var + self.eps)
+            gradient_std = 2 * target_std - 2 * source_std
+
+            target_std = target_std - self.alpha * gradient_std
+
+            self.mu.copy_(self.mu - self.alpha * gradient_mean)
+            self.sigma.copy_(target_std ** 2)
         Y = batch_norm(self.mu, self.sigma, X, self.weight, self.bias, eps=self.eps)
 
         return Y
@@ -204,7 +216,7 @@ class BN(BaseAdapter):
             l_soft_alignment = l_soft_alignment * self.lambda_bn_w
         else:
             l_soft_alignment = torch.tensor(0.0).cuda()
-        print("l_soft_alignment:", l_soft_alignment)
+        # print("l_soft_alignment:", l_soft_alignment)
         # loss += l_soft_alignment
         loss = l_sup + l_soft_alignment 
         # self.ce_loss = torch.nn.CrossEntropyLoss()
@@ -214,12 +226,12 @@ class BN(BaseAdapter):
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()
-        for m in self.model.modules():  
-            if isinstance(m, MyBatchNorm):
-                m.regularize_statistics()
-        for m in self.teacher.modules():  
-            if isinstance(m, MyBatchNorm):
-                m.regularize_statistics()
+        # for m in self.model.modules():  
+        #     if isinstance(m, MyBatchNorm):
+        #         m.regularize_statistics()
+        # for m in self.teacher.modules():  
+        #     if isinstance(m, MyBatchNorm):
+        #         m.regularize_statistics()
         self.update_teacher()
         outputs = ema_out
         return outputs

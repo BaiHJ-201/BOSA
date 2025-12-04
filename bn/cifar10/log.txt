@@ -104662,3 +104662,393 @@ TEST:
 2025-12-04 08:36:28,375 TTA.test_time INFO: Memory buffer cleared due to domain switch.
 2025-12-04 08:36:43,862 TTA.test_time INFO: Memory buffer cleared due to domain switch.
 2025-12-04 08:36:58,575 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:37:51,007 TTA INFO: Namespace(adapter_config_file='configs/adapter/bn.yaml', dataset_config_file='configs/dataset/cifar10.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-04 08:37:51,007 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/bn.yaml
+	dataset: configs/dataset/cifar10.yaml
+	order: 
+2025-12-04 08:37:51,008 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.1
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  NAME: bn
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RT:
+    ETA: 0.01
+    GAMMA: 0.0
+    Lambda: 1.0
+    e_margin: 0.4
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar10
+  NUM_CLASS: 10
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Standard
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-04 08:38:19,804 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:38:35,301 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:38:50,715 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:39:05,932 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:40:07,277 TTA INFO: Namespace(adapter_config_file='configs/adapter/bn.yaml', dataset_config_file='configs/dataset/cifar10.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-04 08:40:07,277 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/bn.yaml
+	dataset: configs/dataset/cifar10.yaml
+	order: 
+2025-12-04 08:40:07,278 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.1
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  NAME: bn
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RT:
+    ETA: 0.01
+    GAMMA: 0.0
+    Lambda: 1.0
+    e_margin: 0.4
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar10
+  NUM_CLASS: 10
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Standard
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-04 08:40:28,806 TTA INFO: Namespace(adapter_config_file='configs/adapter/bn.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-04 08:40:28,806 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/bn.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-04 08:40:28,807 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.1
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  NAME: bn
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RT:
+    ETA: 0.01
+    GAMMA: 0.0
+    Lambda: 1.0
+    e_margin: 0.4
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-04 08:40:54,501 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:41:08,439 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:41:21,986 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:41:35,853 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:41:49,323 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:42:03,275 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:42:17,025 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:42:30,795 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:42:44,383 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:42:57,938 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:43:11,794 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:43:25,208 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:43:38,841 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:43:52,332 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-04 08:44:06,490 TTA.test_time INFO: All Results
++-----------------------+----------+------------+
+|       Corruption      | Accuracy | Error Rate |
++-----------------------+----------+------------+
+|    motion_blur_5_0    |  71.16   |   28.84    |
+|        snow_5_0       |  64.32   |   35.68    |
+|        fog_5_0        |  60.04   |   39.96    |
+|     shot_noise_5_0    |  58.28   |   41.72    |
+|    defocus_blur_5_0   |  70.95   |   29.05    |
+|      contrast_5_0     |  68.60   |   31.40    |
+|     zoom_blur_5_0     |  74.10   |   25.90    |
+|     brightness_5_0    |  74.72   |   25.28    |
+|       frost_5_0       |  66.74   |   33.26    |
+| elastic_transform_5_0 |  67.05   |   32.95    |
+|     glass_blur_5_0    |  58.23   |   41.77    |
+|   gaussian_noise_5_0  |  56.84   |   43.16    |
+|      pixelate_5_0     |  63.11   |   36.89    |
+|  jpeg_compression_5_0 |  61.20   |   38.80    |
+|   impulse_noise_5_0   |  62.56   |   37.44    |
+|       Total Avg       |  65.19   |   34.81    |
++-----------------------+----------+------------+ 
+You should better calculate the per-class average by yourself!
+summary: 28.84	35.68	39.96	41.72	29.05	31.40	25.90	25.28	33.26	32.95	41.77	43.16	36.89	38.80	37.44
+
+2025-12-04 08:44:06,540 TTA.test_time INFO: per domain catAvg:
+0 71.75
+1 65.23
+2 60.44
+3 59.16
+4 71.21
+5 69.64
+6 74.66
+7 75.02
+8 66.96
+9 68.01
+10 57.25
+11 56.69
+12 63.23
+13 61.17
+14 62.99
+Avg: 65.56
+
