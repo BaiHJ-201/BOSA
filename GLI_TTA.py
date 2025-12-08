@@ -109,7 +109,7 @@ def testTimeAdaptation(cfg):
         torch.cuda.synchronize()
         start = time.time()
        
-        output = tta_model(data, label)
+        output = tta_model(data)
         # # 🔍 检查 buffer 是否平衡`
         # if balance == False and tta_model.mem.is_balanced():
         #     print(f"✅ Buffer reached balance at batch {batch_id}")

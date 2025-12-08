@@ -76,132 +76,122 @@ class StochCacheFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx, MyBatchNorm, preserve_rng_state, x, weight, bias):
         check_backward_validity([x, weight, bias])
-        # 检查输入是否满足用于反向重算的条件
-        # print(f"### x req grad: {x.requires_grad}")
         ctx.MyBatchNorm = MyBatchNorm
         ctx.preserve_rng_state = preserve_rng_state
-        # Accommodates the (remote) possibility that autocast is enabled for cpu AND gpu.
-        ctx.gpu_autocast_kwargs = {"enabled": torch.is_autocast_enabled(),
-                                   "dtype": torch.get_autocast_gpu_dtype(),
-                                   "cache_enabled": torch.is_autocast_cache_enabled()}
-        ctx.cpu_autocast_kwargs = {"enabled": torch.is_autocast_cpu_enabled(),
-                                   "dtype": torch.get_autocast_cpu_dtype(),
-                                   "cache_enabled": torch.is_autocast_cache_enabled()}
+        
+        # 保存autocast状态
+        ctx.gpu_autocast_kwargs = {
+            "enabled": torch.is_autocast_enabled(),
+            "dtype": torch.get_autocast_gpu_dtype(),
+            "cache_enabled": torch.is_autocast_cache_enabled()
+        }
+        ctx.cpu_autocast_kwargs = {
+            "enabled": torch.is_autocast_cpu_enabled(),
+            "dtype": torch.get_autocast_cpu_dtype(),
+            "cache_enabled": torch.is_autocast_cache_enabled()
+        }
+        
+        # 保存随机数状态
         if preserve_rng_state:
             ctx.fwd_cpu_state = torch.get_rng_state()
-            # Don't eagerly initialize the cuda context by accident.
-            # (If the user intends that the context is initialized later, within their
-            # run_function, we SHOULD actually stash the cuda state here.  Unfortunately,
-            # we have no way to anticipate this will happen before we run the function.)
-            ctx.had_cuda_in_fwd = False
-            if torch.cuda._initialized:
-                ctx.had_cuda_in_fwd = True
+            ctx.had_cuda_in_fwd = torch.cuda._initialized
+            if ctx.had_cuda_in_fwd:
                 ctx.fwd_gpu_devices, ctx.fwd_gpu_states = get_device_states(x)
-
+        else:
+            ctx.had_cuda_in_fwd = False
+        
+        # 前向计算BN
         with torch.no_grad():
-            # outputs, req_cache = run_function(x)
             y = batch_norm(MyBatchNorm.mu, MyBatchNorm.sigma, x, weight, bias, eps=MyBatchNorm.eps)
             req_cache = not MyBatchNorm.full_matched
-
             ctx.req_cache = req_cache
-            if req_cache:  # require cache for norm grad or weight.
-                # x = tensor_inputs[0]
+            
+            # 剪枝逻辑：按weight绝对值选通道
+            if req_cache:
                 n_channels = x.size(1)
                 n_rm = int(n_channels * MyBatchNorm.prune_q)
                 ctx.n_rm = n_rm
+                ctx.n_channels = n_channels
+                
                 if n_rm > 0:
-                    # ========== 关键修改：按weight绝对值选剪枝通道 ==========
-                    # 1. 提取weight的绝对值（4D→1D，通道维度）
-                    weight_abs = weight.abs().squeeze()  # 4D[1,C,1,1] → 1D[C]
-                    # 2. 按绝对值从小到大排序，获取索引
-                    sorted_indices = torch.argsort(weight_abs, dim=0)  # 升序排列
-                    # 3. 选取前n_rm个（绝对值最小）作为剪枝通道
-                    ctx.removed_idxs = sorted_indices[:n_rm]  # 剪枝通道
+                    # 提取weight绝对值并排序（通道维度）
+                    weight_abs = weight.abs().squeeze()  # [1,C,1,1] → [C]
+                    sorted_indices = torch.argsort(weight_abs, dim=0)  # 升序
+                    ctx.removed_idxs = sorted_indices[:n_rm]  # 剪枝通道（绝对值最小）
                     ctx.remained_idxs = sorted_indices[n_rm:]  # 保留通道
-                    # ======================================================
-                    ctx.n_channels = n_channels
                     
+                    # 切片输入并保存
                     x_slice = x.index_select(1, ctx.remained_idxs)
                     x_slice.requires_grad = x.requires_grad
-                    x = x_slice
-
+                    ctx.save_for_backward(x_slice)
+                else:
+                    ctx.save_for_backward(x)
+            else:
+                ctx.n_rm = 0
                 ctx.save_for_backward(x)
-        # else will not save tensor.
+        
         return y
-
     @staticmethod
     def backward(ctx, grad_out):
+        """修复反向传播逻辑：正确计算并回填参数梯度"""
         if not torch.autograd._is_checkpoint_valid():
             raise RuntimeError(
-                "Checkpointing is not compatible with .grad() or when an `inputs` parameter"
-                " is passed to .backward(). Please use .backward() and do not pass its `inputs`"
-                " argument.")
-        if not ctx.req_cache:  # no intermediate grad
-            return None, None, grad_out, None, None
-        # Stash the surrounding rng state, and mimic the state that was
-        # present at this time during forward.  Restore the surrounding state
-        # when we're done.
-        x, = ctx.saved_tensors
+                "Checkpointing is not compatible with .grad() or when an inputs parameter "
+                "is passed to .backward(). Please use .backward() without inputs argument."
+            )
+        
+        # 无需缓存时直接返回梯度
+        if not ctx.req_cache or ctx.n_rm == 0:
+            return None, None, grad_out, torch.zeros_like(ctx.MyBatchNorm.weight), torch.zeros_like(ctx.MyBatchNorm.bias)
+        
+        # 恢复随机数状态
+        x_sliced, = ctx.saved_tensors
         MyBatchNorm = ctx.MyBatchNorm
-        rng_devices = []
-        if ctx.preserve_rng_state and ctx.had_cuda_in_fwd:
-            rng_devices = ctx.fwd_gpu_devices
+        rng_devices = ctx.fwd_gpu_devices if (ctx.preserve_rng_state and ctx.had_cuda_in_fwd) else []
+        
         with torch.random.fork_rng(devices=rng_devices, enabled=ctx.preserve_rng_state):
             if ctx.preserve_rng_state:
                 torch.set_rng_state(ctx.fwd_cpu_state)
                 if ctx.had_cuda_in_fwd:
                     set_device_states(ctx.fwd_gpu_devices, ctx.fwd_gpu_states)
-            # detached_inputs = detach_variable((x,))
+        
+        # 准备反向输入（保留梯度链路）
+        detached_x = x_sliced.detach()
+        detached_x.requires_grad = True  # 强制开启梯度
+        remained_idxs = ctx.remained_idxs
+        removed_idxs = ctx.removed_idxs
+        
+        # 切片参数（不detach，保留梯度链路）
+        weight_sliced = MyBatchNorm.weight[:, remained_idxs, :, :]
+        bias_sliced = MyBatchNorm.bias[:, remained_idxs, :, :]
+        mu_sliced = MyBatchNorm.mu[:, remained_idxs, :, :]
+        sigma_sliced = MyBatchNorm.sigma[:, remained_idxs, :, :]
+        
+        # 强制开启参数梯度
+        weight_sliced.requires_grad = True
+        bias_sliced.requires_grad = True
+        
+        # 重新前向计算（带梯度）
+        with torch.enable_grad(), \
+             torch.cuda.amp.autocast(**ctx.gpu_autocast_kwargs), \
+             torch.cpu.amp.autocast(**ctx.cpu_autocast_kwargs):
+            y = batch_norm(mu_sliced, sigma_sliced, detached_x, weight_sliced, bias_sliced, eps=MyBatchNorm.eps)
+        
+        # 反向传播计算切片梯度
+        grad_out_sliced = grad_out[:, remained_idxs, :, :]
+        torch.autograd.backward([y], [grad_out_sliced])
+        
+        # 回填梯度到完整维度
+        grad_x, grad_weight, grad_bias = grad_refill(
+            grad_out, removed_idxs, remained_idxs,
+            MyBatchNorm.weight, MyBatchNorm.bias, MyBatchNorm.sigma, MyBatchNorm.eps,
+            weight_sliced.grad, bias_sliced.grad, detached_x.grad
+        )
+        
+        # 返回值顺序：ctx的forward参数对应的梯度（MyBatchNorm, preserve_rng_state, x, weight, bias）
+        # 注意：非张量参数返回None，张量参数返回对应梯度
+        return None, None, grad_x, grad_weight, grad_bias
 
-            detached_x = x.detach()
-            # detach variables
-            weight, bias = MyBatchNorm.weight, MyBatchNorm.bias
-            # weight, bias = MyBatchNorm.weight.detach(), MyBatchNorm.bias.detach()
-            running_mean, running_var = MyBatchNorm.mu.detach(), MyBatchNorm.sigma.detach()
-            
-            if ctx.n_rm > 0:
-                # Get remained sliced params
-                with torch.no_grad():
-                    weight = MyBatchNorm.weight[:, ctx.remained_idxs, :, :]  # 维度1是通道维
-                    bias = MyBatchNorm.bias[:, ctx.remained_idxs, :, :]
-                    running_mean = running_mean[:, ctx.remained_idxs, :, :]
-                    running_var = running_var[:, ctx.remained_idxs, :, :]
-            # requires grad
-            detached_x.requires_grad = x.requires_grad
-            weight.requires_grad, bias.requires_grad = MyBatchNorm.weight.requires_grad, MyBatchNorm.bias.requires_grad
-            with torch.enable_grad(), \
-                torch.cuda.amp.autocast(**ctx.gpu_autocast_kwargs), \
-                torch.cpu.amp.autocast(**ctx.cpu_autocast_kwargs):
-                if not ctx.req_cache:
-                    weight = weight.detach()
-                    bias = bias.detach()
-                y = batch_norm(running_mean, running_var, detached_x, weight, bias, eps=MyBatchNorm.eps)
-            with torch.no_grad():
-                if ctx.n_rm > 0:
-                    remained_idxs = ctx.remained_idxs
-                    removed_idxs = ctx.removed_idxs
-
-                    # Refill grad
-                    if torch.is_tensor(y) and y.requires_grad:
-                        torch.autograd.backward([y], [grad_out[:, remained_idxs, :, :]])
-
-                    # if detached_x.grad is not None:  # this may ignore some grads on w/b,
-                    grad_x, grad_w, grad_b = grad_refill(grad_out, removed_idxs, remained_idxs, MyBatchNorm.weight, MyBatchNorm.bias, MyBatchNorm.running_var, MyBatchNorm.eps, weight.grad, bias.grad, detached_x.grad)
-                else:
-                    # run backward() with only tensor that requires grad
-                    # if torch.is_tensor(y) and y.requires_grad:
-                    #     torch.autograd.backward([y], [grad_out])
-
-                    # retrive input grad
-                    grad_x = detached_x.grad
-                    grad_w = weight.grad 
-                    grad_b = bias.grad 
-                
-                # grad_x = grad_out
-                # grad_w = None
-                # grad_b = None
-
-        return None, None, grad_x, grad_w, grad_b
 class MyBatchNorm(nn.Module):
     _global_bn_counter = 0  # 静态计数器，确保每层有唯一 ID
     def __init__(self, bn_init: nn.BatchNorm2d, datta_alpha=0.5, log_dir="/root/WZR/TRIBE/statistic"):
@@ -227,7 +217,7 @@ class MyBatchNorm(nn.Module):
 
         self.calibrate_mode = False
         self.alpha = datta_alpha
-        self.full_matched = False   
+        self.full_matched = False
         self.reset_mean = True
         # 确保日志目录存在
         os.makedirs(log_dir, exist_ok=True)
@@ -235,6 +225,15 @@ class MyBatchNorm(nn.Module):
         # 分配唯一 ID
         MyBatchNorm._global_bn_counter += 1
         self.layer_id = MyBatchNorm._global_bn_counter
+
+        # 日志文件路径
+        self.log_path = os.path.join(log_dir, f"bn_layer_{self.layer_id:03d}.txt")
+
+        # 初始化日志文件
+        with open(self.log_path, "w") as f:
+            f.write(f"=== BN Layer {self.layer_id} Logging Start ===\n")
+            f.write(f"[Init BN] running_mean: {bn_init.running_mean.detach().cpu().numpy().tolist()}\n")
+            f.write(f"[Init BN] running_var:  {bn_init.running_var.detach().cpu().numpy().tolist()}\n")
 
     def reset_statistic(self):
         # self.full_matched = True
@@ -257,14 +256,14 @@ class MyBatchNorm(nn.Module):
             
             dist = gauss_symm_kl_divergence(
                 batch_mean, batch_var, self.mu, self.sigma, eps=self.eps)
-            adaptive_alpha = 1. - torch.exp(- 0.1 * dist.mean())
+            adaptive_alpha = 1. - torch.exp(- 1.0 * dist.mean())
             self.alpha = adaptive_alpha.item()
             if self.alpha > 0.0:
                 self.full_matched = False
-                self.weight.requires_grad, self.bias.requires_grad = True, True
+                # self.weight.requires_grad, self.bias.requires_grad = True, True
             else:
                 self.full_matched = True
-                self.weight.requires_grad, self.bias.requires_grad = False, False
+                # self.weight.requires_grad, self.bias.requires_grad = False, False
             self.mu.data = self.alpha * batch_mean + (1 - self.alpha) * self.mu.data.clone()
             self.sigma.data = self.alpha * batch_var + (1 - self.alpha) * self.sigma.data.clone()
 
@@ -305,13 +304,9 @@ class BN(BaseAdapter):
         self.reset()
         with torch.no_grad():
             teacher_outputs = self.teacher(batch_data)
-            # teacher_outputs = self.teacher(batch_data)
             teacher_probs = torch.softmax(teacher_outputs, dim=1)
             pseudo_label = torch.argmax(teacher_probs, dim=1)
             entropy = torch.sum(- teacher_probs * torch.log(teacher_probs + 1e-6), dim=1)
-            # pseudo_acc = (pseudo_label == y).float().mean().item()
-            # print(f"[Pseudo Label Accuracy] {pseudo_acc * 100:.2f}%")
-        # add into memory
         for i, data in enumerate(batch_data):
             p_l = pseudo_label[i].item()
             uncertainty = entropy[i].item()
@@ -327,53 +322,26 @@ class BN(BaseAdapter):
         
         ema_out = self.teacher(imgs)
         stu_out = self.model(strong_aug)
-        entropy = self.self_softmax_entropy(ema_out)
-        # entropy_mask = (entropy < 0.8 * math.log(10))
-        # current_entropy = entropy.mean()
-        # dynamic_threshold = 1.0 * current_entropy  # 基于当前域平均熵调整
-        # entropy_mask = (entropy < dynamic_threshold)
-        # # l_sup = (softmax_entropy(stu_out, ema_out) * 1.0).mean()
-        # loss = (softmax_entropy(stu_out, ema_out))[entropy_mask].mean()
-        loss = (softmax_entropy(stu_out, ema_out)).mean()
-        # print(f"entropy_loss: {loss}")
-        # # confidence threshold
-        # # entropy = softmax_entropy(outputs)
-        # # filter = torch.where(entropy < self.margin)[0]  
-        # # # ratio = len(filter) / batch_size if batch_size > 0 else 0.0
-        # # # print(f"filter_ids_1占内存样本比例: {ratio:.4f} ({len(filter)}/{batch_size})")
-        # # # logits = outputs[filter]
-        # # entropy = entropy[filter]
-        # # # pseudo_label = pseudo_label [filter]
-        # # loss = entropy.mean(0)
-        # # print("entropy_loss:", loss)
-        # bn_l1_loss = compute_bn_weight_l1_loss(self.model)
-        # loss += bn_l1_loss * 1
-        # print(f"bn_l1_loss: {bn_l1_loss}")
+        loss = (softmax_entropy(stu_out, ema_out) * 1.0).mean()
+        bn_l1_loss = compute_bn_weight_l1_loss(self.model)
+        print(f"bn_l1_loss: {bn_l1_loss}")
+        loss += bn_l1_loss * 1
         if self.lambda_bn_w > 0:
             l_soft_alignment = []
+            print(self.lambda_bn_w)
             for m in self.model.modules():
                 if isinstance(m, MyBatchNorm):
                     l_soft_alignment.append(m.get_soft_alignment_loss_weight())
+                    print(l_soft_alignment)
             l_soft_alignment = torch.stack(l_soft_alignment).sum()
             l_soft_alignment = l_soft_alignment * self.lambda_bn_w
         else:
             l_soft_alignment = torch.tensor(0.0).cuda()
-        # print(f"l_soft_alignment: {l_soft_alignment}")
         loss += l_soft_alignment
-        # # self.ce_loss = torch.nn.CrossEntropyLoss()
-        # # loss_pl = 1.0 * self.ce_loss(outputs, pseudo_label) 
-        # # print("loss_pl:", loss_pl)
-        # # loss += loss_pl
         if has_accum_bn_grad(self.model):
+            self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-            self.optimizer.zero_grad()
-        # for m in self.model.modules():  
-        #     if isinstance(m, MyBatchNorm):
-        #         m.regularize_statistics()
-        # for m in self.teacher.modules():  
-        #     if isinstance(m, MyBatchNorm):
-        #         m.regularize_statistics()
         self.update_teacher()
     @torch.no_grad()
     def update_teacher(self):
@@ -393,7 +361,6 @@ class BN(BaseAdapter):
 
     def replace_bn_with_custom(self, model: nn.Module, custom_bn):
         for name, module in model.named_children():
-            # if isinstance(module, (nn.BatchNorm2d, nn.BatchNorm1d)):
             if isinstance(module, (nn.BatchNorm2d)):
                 setattr(model, name, custom_bn(module))
             else:
@@ -435,24 +402,6 @@ class BN(BaseAdapter):
 @torch.jit.script
 def softmax_entropy(x, x_ema):
     return -(x_ema.softmax(1) * x.log_softmax(1)).sum(1)
-# @torch.jit.script
-# def softmax_entropy(x: torch.Tensor) -> torch.Tensor:
-#     """Entropy of softmax distribution from logits."""
-#     return -(x.softmax(1) * x.log_softmax(1)).sum(1)
-# @torch.jit.script
-def gauss_symm_kl_divergence(mean1, var1, mean2, var2, eps):
-    if not torch.is_tensor(eps):
-        eps = torch.tensor(eps, device=mean1.device, dtype=mean1.dtype)
-    # >>> out-place ops
-    dif_mean = (mean1 - mean2) ** 2
-    d1 = var1 + eps + dif_mean
-    d1.div_(var2 + eps)
-    d2 = (var2 + eps + dif_mean)
-    d2.div_(var1 + eps)
-    d1.add_(d2)
-    d1.div_(2.).sub_(1.)
-    # d1 = (var1 + eps + dif_mean) / (var2 + eps) + (var2 + eps + dif_mean) / (var1 + eps)
-    return d1
 def gauss_kl_divergence(mean1, var1, mean2, var2, eps):
     # /// v1: relative to distribution 2 ///
     d1 = (torch.log(var2 + eps) - torch.log(var1 + eps))/2. + \
@@ -471,6 +420,19 @@ def has_accum_bn_grad(model):
     if has_acc_bn and all_mached:
         return False
     return True
+def gauss_symm_kl_divergence(mean1, var1, mean2, var2, eps):
+    if not torch.is_tensor(eps):
+        eps = torch.tensor(eps, device=mean1.device, dtype=mean1.dtype)
+    # >>> out-place ops
+    dif_mean = (mean1 - mean2) ** 2
+    d1 = var1 + eps + dif_mean
+    d1.div_(var2 + eps)
+    d2 = (var2 + eps + dif_mean)
+    d2.div_(var1 + eps)
+    d1.add_(d2)
+    d1.div_(2.).sub_(1.)
+    # d1 = (var1 + eps + dif_mean) / (var2 + eps) + (var2 + eps + dif_mean) / (var1 + eps)
+    return d1
 # @torch.jit.script  # 若需jit编译，需确保所有操作兼容jit，暂时注释便于调试
 def grad_refill(grad_out, removed_idxs, remained_idxs, full_weight, full_bias, running_var, eps,
                 weight_grad, bias_grad, detached_x_grad):
@@ -484,6 +446,7 @@ def grad_refill(grad_out, removed_idxs, remained_idxs, full_weight, full_bias, r
     - detached_x_grad: (N, C_rem, H, W)  裁剪后输入梯度
     - removed_idxs/remained_idxs: 1D张量 裁剪/保留的通道索引
     """
+    
     # ========== 1. 处理输入梯度 grad_x ==========
     if detached_x_grad is None:
         grad_x = None
@@ -555,4 +518,9 @@ def grad_refill(grad_out, removed_idxs, remained_idxs, full_weight, full_bias, r
                 index=removed_idxs,
                 source=grad_rm_sum_squeezed
             )
+    print("=== 梯度调试 ===")
+    print(f"weight_grad 均值: {weight_grad.mean().item() if weight_grad is not None else 'None'}")
+    print(f"bias_grad 均值: {bias_grad.mean().item() if bias_grad is not None else 'None'}")
+    print(f"填充后grad_w 均值: {grad_w.mean().item() if grad_w is not None else 'None'}")
+    print(f"填充后grad_b 均值: {grad_b.mean().item() if grad_b is not None else 'None'}")
     return grad_x, grad_w, grad_b
