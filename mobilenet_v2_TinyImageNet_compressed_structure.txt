@@ -1,0 +1,341 @@
+GraphModule(
+  (features): Module(
+    (0): Module(
+      (0): Conv2d(3, 24, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+      (2): ReLU6(inplace=True)
+    )
+    (1): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(24, 24, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=24)
+          (2): ReLU6(inplace=True)
+        )
+        (1): Conv2d(24, 12, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (2): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(12, 72, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(72, 72, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), groups=72)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(72, 18, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (3): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(18, 108, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(108, 108, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=108)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(108, 18, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (4): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(18, 108, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(108, 108, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), groups=108)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(108, 24, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (5): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(24, 144, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(144, 144, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=144)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(144, 24, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (6): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(24, 144, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(144, 144, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=144)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(144, 24, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (7): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(24, 144, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(144, 144, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), groups=144)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(144, 48, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (8): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(48, 288, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(288, 48, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (9): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(48, 288, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(288, 48, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (10): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(48, 288, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(288, 48, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (11): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(48, 288, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(288, 72, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (12): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(72, 432, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(432, 432, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=432)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(432, 72, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (13): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(72, 432, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(432, 432, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=432)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(432, 72, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (14): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(72, 432, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(432, 432, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), groups=432)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(432, 120, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (15): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(120, 720, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(720, 720, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=720)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(720, 120, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (16): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(120, 720, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(720, 720, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=720)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(720, 120, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (17): Module(
+      (conv): Module(
+        (0): Module(
+          (0): Conv2d(120, 720, kernel_size=(1, 1), stride=(1, 1))
+          (2): ReLU6(inplace=True)
+        )
+        (1): Module(
+          (0): Conv2d(720, 720, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=720)
+          (2): ReLU6(inplace=True)
+        )
+        (2): Conv2d(720, 240, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (18): Module(
+      (0): Conv2d(240, 960, kernel_size=(1, 1), stride=(1, 1))
+      (2): ReLU6(inplace=True)
+    )
+  )
+  (classifier): Module(
+    (0): Dropout(p=0.2, inplace=False)
+    (1): Linear(in_features=960, out_features=200, bias=True)
+  )
+)
+
+
+
+def forward(self, x : torch.Tensor) -> torch.Tensor:
+    features_0_0 = getattr(getattr(self.features, "0"), "0")(x);  x = None
+    features_0_2 = getattr(getattr(self.features, "0"), "2")(features_0_0);  features_0_0 = None
+    features_1_conv_0_0 = getattr(getattr(getattr(self.features, "1").conv, "0"), "0")(features_0_2);  features_0_2 = None
+    features_1_conv_0_2 = getattr(getattr(getattr(self.features, "1").conv, "0"), "2")(features_1_conv_0_0);  features_1_conv_0_0 = None
+    features_1_conv_1 = getattr(getattr(self.features, "1").conv, "1")(features_1_conv_0_2);  features_1_conv_0_2 = None
+    features_2_conv_0_0 = getattr(getattr(getattr(self.features, "2").conv, "0"), "0")(features_1_conv_1);  features_1_conv_1 = None
+    features_2_conv_0_2 = getattr(getattr(getattr(self.features, "2").conv, "0"), "2")(features_2_conv_0_0);  features_2_conv_0_0 = None
+    features_2_conv_1_0 = getattr(getattr(getattr(self.features, "2").conv, "1"), "0")(features_2_conv_0_2);  features_2_conv_0_2 = None
+    features_2_conv_1_2 = getattr(getattr(getattr(self.features, "2").conv, "1"), "2")(features_2_conv_1_0);  features_2_conv_1_0 = None
+    features_2_conv_2 = getattr(getattr(self.features, "2").conv, "2")(features_2_conv_1_2);  features_2_conv_1_2 = None
+    features_3_conv_0_0 = getattr(getattr(getattr(self.features, "3").conv, "0"), "0")(features_2_conv_2)
+    features_3_conv_0_2 = getattr(getattr(getattr(self.features, "3").conv, "0"), "2")(features_3_conv_0_0);  features_3_conv_0_0 = None
+    features_3_conv_1_0 = getattr(getattr(getattr(self.features, "3").conv, "1"), "0")(features_3_conv_0_2);  features_3_conv_0_2 = None
+    features_3_conv_1_2 = getattr(getattr(getattr(self.features, "3").conv, "1"), "2")(features_3_conv_1_0);  features_3_conv_1_0 = None
+    features_3_conv_2 = getattr(getattr(self.features, "3").conv, "2")(features_3_conv_1_2);  features_3_conv_1_2 = None
+    add = features_2_conv_2 + features_3_conv_2;  features_2_conv_2 = features_3_conv_2 = None
+    features_4_conv_0_0 = getattr(getattr(getattr(self.features, "4").conv, "0"), "0")(add);  add = None
+    features_4_conv_0_2 = getattr(getattr(getattr(self.features, "4").conv, "0"), "2")(features_4_conv_0_0);  features_4_conv_0_0 = None
+    features_4_conv_1_0 = getattr(getattr(getattr(self.features, "4").conv, "1"), "0")(features_4_conv_0_2);  features_4_conv_0_2 = None
+    features_4_conv_1_2 = getattr(getattr(getattr(self.features, "4").conv, "1"), "2")(features_4_conv_1_0);  features_4_conv_1_0 = None
+    features_4_conv_2 = getattr(getattr(self.features, "4").conv, "2")(features_4_conv_1_2);  features_4_conv_1_2 = None
+    features_5_conv_0_0 = getattr(getattr(getattr(self.features, "5").conv, "0"), "0")(features_4_conv_2)
+    features_5_conv_0_2 = getattr(getattr(getattr(self.features, "5").conv, "0"), "2")(features_5_conv_0_0);  features_5_conv_0_0 = None
+    features_5_conv_1_0 = getattr(getattr(getattr(self.features, "5").conv, "1"), "0")(features_5_conv_0_2);  features_5_conv_0_2 = None
+    features_5_conv_1_2 = getattr(getattr(getattr(self.features, "5").conv, "1"), "2")(features_5_conv_1_0);  features_5_conv_1_0 = None
+    features_5_conv_2 = getattr(getattr(self.features, "5").conv, "2")(features_5_conv_1_2);  features_5_conv_1_2 = None
+    add_1 = features_4_conv_2 + features_5_conv_2;  features_4_conv_2 = features_5_conv_2 = None
+    features_6_conv_0_0 = getattr(getattr(getattr(self.features, "6").conv, "0"), "0")(add_1)
+    features_6_conv_0_2 = getattr(getattr(getattr(self.features, "6").conv, "0"), "2")(features_6_conv_0_0);  features_6_conv_0_0 = None
+    features_6_conv_1_0 = getattr(getattr(getattr(self.features, "6").conv, "1"), "0")(features_6_conv_0_2);  features_6_conv_0_2 = None
+    features_6_conv_1_2 = getattr(getattr(getattr(self.features, "6").conv, "1"), "2")(features_6_conv_1_0);  features_6_conv_1_0 = None
+    features_6_conv_2 = getattr(getattr(self.features, "6").conv, "2")(features_6_conv_1_2);  features_6_conv_1_2 = None
+    add_2 = add_1 + features_6_conv_2;  add_1 = features_6_conv_2 = None
+    features_7_conv_0_0 = getattr(getattr(getattr(self.features, "7").conv, "0"), "0")(add_2);  add_2 = None
+    features_7_conv_0_2 = getattr(getattr(getattr(self.features, "7").conv, "0"), "2")(features_7_conv_0_0);  features_7_conv_0_0 = None
+    features_7_conv_1_0 = getattr(getattr(getattr(self.features, "7").conv, "1"), "0")(features_7_conv_0_2);  features_7_conv_0_2 = None
+    features_7_conv_1_2 = getattr(getattr(getattr(self.features, "7").conv, "1"), "2")(features_7_conv_1_0);  features_7_conv_1_0 = None
+    features_7_conv_2 = getattr(getattr(self.features, "7").conv, "2")(features_7_conv_1_2);  features_7_conv_1_2 = None
+    features_8_conv_0_0 = getattr(getattr(getattr(self.features, "8").conv, "0"), "0")(features_7_conv_2)
+    features_8_conv_0_2 = getattr(getattr(getattr(self.features, "8").conv, "0"), "2")(features_8_conv_0_0);  features_8_conv_0_0 = None
+    features_8_conv_1_0 = getattr(getattr(getattr(self.features, "8").conv, "1"), "0")(features_8_conv_0_2);  features_8_conv_0_2 = None
+    features_8_conv_1_2 = getattr(getattr(getattr(self.features, "8").conv, "1"), "2")(features_8_conv_1_0);  features_8_conv_1_0 = None
+    features_8_conv_2 = getattr(getattr(self.features, "8").conv, "2")(features_8_conv_1_2);  features_8_conv_1_2 = None
+    add_3 = features_7_conv_2 + features_8_conv_2;  features_7_conv_2 = features_8_conv_2 = None
+    features_9_conv_0_0 = getattr(getattr(getattr(self.features, "9").conv, "0"), "0")(add_3)
+    features_9_conv_0_2 = getattr(getattr(getattr(self.features, "9").conv, "0"), "2")(features_9_conv_0_0);  features_9_conv_0_0 = None
+    features_9_conv_1_0 = getattr(getattr(getattr(self.features, "9").conv, "1"), "0")(features_9_conv_0_2);  features_9_conv_0_2 = None
+    features_9_conv_1_2 = getattr(getattr(getattr(self.features, "9").conv, "1"), "2")(features_9_conv_1_0);  features_9_conv_1_0 = None
+    features_9_conv_2 = getattr(getattr(self.features, "9").conv, "2")(features_9_conv_1_2);  features_9_conv_1_2 = None
+    add_4 = add_3 + features_9_conv_2;  add_3 = features_9_conv_2 = None
+    features_10_conv_0_0 = getattr(getattr(getattr(self.features, "10").conv, "0"), "0")(add_4)
+    features_10_conv_0_2 = getattr(getattr(getattr(self.features, "10").conv, "0"), "2")(features_10_conv_0_0);  features_10_conv_0_0 = None
+    features_10_conv_1_0 = getattr(getattr(getattr(self.features, "10").conv, "1"), "0")(features_10_conv_0_2);  features_10_conv_0_2 = None
+    features_10_conv_1_2 = getattr(getattr(getattr(self.features, "10").conv, "1"), "2")(features_10_conv_1_0);  features_10_conv_1_0 = None
+    features_10_conv_2 = getattr(getattr(self.features, "10").conv, "2")(features_10_conv_1_2);  features_10_conv_1_2 = None
+    add_5 = add_4 + features_10_conv_2;  add_4 = features_10_conv_2 = None
+    features_11_conv_0_0 = getattr(getattr(getattr(self.features, "11").conv, "0"), "0")(add_5);  add_5 = None
+    features_11_conv_0_2 = getattr(getattr(getattr(self.features, "11").conv, "0"), "2")(features_11_conv_0_0);  features_11_conv_0_0 = None
+    features_11_conv_1_0 = getattr(getattr(getattr(self.features, "11").conv, "1"), "0")(features_11_conv_0_2);  features_11_conv_0_2 = None
+    features_11_conv_1_2 = getattr(getattr(getattr(self.features, "11").conv, "1"), "2")(features_11_conv_1_0);  features_11_conv_1_0 = None
+    features_11_conv_2 = getattr(getattr(self.features, "11").conv, "2")(features_11_conv_1_2);  features_11_conv_1_2 = None
+    features_12_conv_0_0 = getattr(getattr(getattr(self.features, "12").conv, "0"), "0")(features_11_conv_2)
+    features_12_conv_0_2 = getattr(getattr(getattr(self.features, "12").conv, "0"), "2")(features_12_conv_0_0);  features_12_conv_0_0 = None
+    features_12_conv_1_0 = getattr(getattr(getattr(self.features, "12").conv, "1"), "0")(features_12_conv_0_2);  features_12_conv_0_2 = None
+    features_12_conv_1_2 = getattr(getattr(getattr(self.features, "12").conv, "1"), "2")(features_12_conv_1_0);  features_12_conv_1_0 = None
+    features_12_conv_2 = getattr(getattr(self.features, "12").conv, "2")(features_12_conv_1_2);  features_12_conv_1_2 = None
+    add_6 = features_11_conv_2 + features_12_conv_2;  features_11_conv_2 = features_12_conv_2 = None
+    features_13_conv_0_0 = getattr(getattr(getattr(self.features, "13").conv, "0"), "0")(add_6)
+    features_13_conv_0_2 = getattr(getattr(getattr(self.features, "13").conv, "0"), "2")(features_13_conv_0_0);  features_13_conv_0_0 = None
+    features_13_conv_1_0 = getattr(getattr(getattr(self.features, "13").conv, "1"), "0")(features_13_conv_0_2);  features_13_conv_0_2 = None
+    features_13_conv_1_2 = getattr(getattr(getattr(self.features, "13").conv, "1"), "2")(features_13_conv_1_0);  features_13_conv_1_0 = None
+    features_13_conv_2 = getattr(getattr(self.features, "13").conv, "2")(features_13_conv_1_2);  features_13_conv_1_2 = None
+    add_7 = add_6 + features_13_conv_2;  add_6 = features_13_conv_2 = None
+    features_14_conv_0_0 = getattr(getattr(getattr(self.features, "14").conv, "0"), "0")(add_7);  add_7 = None
+    features_14_conv_0_2 = getattr(getattr(getattr(self.features, "14").conv, "0"), "2")(features_14_conv_0_0);  features_14_conv_0_0 = None
+    features_14_conv_1_0 = getattr(getattr(getattr(self.features, "14").conv, "1"), "0")(features_14_conv_0_2);  features_14_conv_0_2 = None
+    features_14_conv_1_2 = getattr(getattr(getattr(self.features, "14").conv, "1"), "2")(features_14_conv_1_0);  features_14_conv_1_0 = None
+    features_14_conv_2 = getattr(getattr(self.features, "14").conv, "2")(features_14_conv_1_2);  features_14_conv_1_2 = None
+    features_15_conv_0_0 = getattr(getattr(getattr(self.features, "15").conv, "0"), "0")(features_14_conv_2)
+    features_15_conv_0_2 = getattr(getattr(getattr(self.features, "15").conv, "0"), "2")(features_15_conv_0_0);  features_15_conv_0_0 = None
+    features_15_conv_1_0 = getattr(getattr(getattr(self.features, "15").conv, "1"), "0")(features_15_conv_0_2);  features_15_conv_0_2 = None
+    features_15_conv_1_2 = getattr(getattr(getattr(self.features, "15").conv, "1"), "2")(features_15_conv_1_0);  features_15_conv_1_0 = None
+    features_15_conv_2 = getattr(getattr(self.features, "15").conv, "2")(features_15_conv_1_2);  features_15_conv_1_2 = None
+    add_8 = features_14_conv_2 + features_15_conv_2;  features_14_conv_2 = features_15_conv_2 = None
+    features_16_conv_0_0 = getattr(getattr(getattr(self.features, "16").conv, "0"), "0")(add_8)
+    features_16_conv_0_2 = getattr(getattr(getattr(self.features, "16").conv, "0"), "2")(features_16_conv_0_0);  features_16_conv_0_0 = None
+    features_16_conv_1_0 = getattr(getattr(getattr(self.features, "16").conv, "1"), "0")(features_16_conv_0_2);  features_16_conv_0_2 = None
+    features_16_conv_1_2 = getattr(getattr(getattr(self.features, "16").conv, "1"), "2")(features_16_conv_1_0);  features_16_conv_1_0 = None
+    features_16_conv_2 = getattr(getattr(self.features, "16").conv, "2")(features_16_conv_1_2);  features_16_conv_1_2 = None
+    add_9 = add_8 + features_16_conv_2;  add_8 = features_16_conv_2 = None
+    features_17_conv_0_0 = getattr(getattr(getattr(self.features, "17").conv, "0"), "0")(add_9);  add_9 = None
+    features_17_conv_0_2 = getattr(getattr(getattr(self.features, "17").conv, "0"), "2")(features_17_conv_0_0);  features_17_conv_0_0 = None
+    features_17_conv_1_0 = getattr(getattr(getattr(self.features, "17").conv, "1"), "0")(features_17_conv_0_2);  features_17_conv_0_2 = None
+    features_17_conv_1_2 = getattr(getattr(getattr(self.features, "17").conv, "1"), "2")(features_17_conv_1_0);  features_17_conv_1_0 = None
+    features_17_conv_2 = getattr(getattr(self.features, "17").conv, "2")(features_17_conv_1_2);  features_17_conv_1_2 = None
+    features_18_0 = getattr(getattr(self.features, "18"), "0")(features_17_conv_2);  features_17_conv_2 = None
+    features_18_2 = getattr(getattr(self.features, "18"), "2")(features_18_0);  features_18_0 = None
+    adaptive_avg_pool2d = torch.nn.functional.adaptive_avg_pool2d(features_18_2, (1, 1));  features_18_2 = None
+    flatten = torch.flatten(adaptive_avg_pool2d, 1);  adaptive_avg_pool2d = None
+    classifier_0 = getattr(self.classifier, "0")(flatten);  flatten = None
+    classifier_1 = getattr(self.classifier, "1")(classifier_0);  classifier_0 = None
+    return classifier_1
+    
+# To see more debug info, please use `graph_module.print_readable()`

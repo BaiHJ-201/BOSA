@@ -11,7 +11,7 @@ from .eata import EATA
 from .cotta import CoTTA
 from .petal import PETALFim
 from .datta import DATTA
-from .RT import RT
+from .mert import MERT
 from .ecotta import EcoTTA
 from .norm import Norm
 from typing import Type  # 导入Type用于类型注解
@@ -44,8 +44,8 @@ def build_adapter(cfg) -> Type[BaseAdapter]:
         return DATTA
     elif cfg.ADAPTER.NAME == "datta":
         return DATTA
-    elif cfg.ADAPTER.NAME == "rt":
-        return RT
+    elif cfg.ADAPTER.NAME == "mert":
+        return MERT
     elif cfg.ADAPTER.NAME == "EcoTTA":
         return EcoTTA
     elif cfg.ADAPTER.NAME == "norm":

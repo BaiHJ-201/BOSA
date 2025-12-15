@@ -126342,3 +126342,1819 @@ summary: 29.15	36.64	41.41	44.89	30.93	33.62	27.27	25.59	35.53	36.35	44.56	47.47
 14 60.33
 Avg: 63.82
 
+2025-12-08 01:55:41,326 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-08 01:55:41,326 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-08 01:55:41,327 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 1e-05
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-08 01:59:23,220 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-08 01:59:23,220 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-08 01:59:23,221 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 1e-05
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-08 01:59:56,250 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:00:15,838 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:00:33,038 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:00:52,412 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:01:09,061 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:01:26,843 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:01:43,706 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:02:00,253 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:02:17,427 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:02:33,942 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:02:51,570 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:03:08,074 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:03:24,671 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:03:41,626 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:03:58,756 TTA.test_time INFO: All Results
++-----------------------+----------+------------+
+|       Corruption      | Accuracy | Error Rate |
++-----------------------+----------+------------+
+|    motion_blur_5_0    |  70.92   |   29.08    |
+|        snow_5_0       |  63.70   |   36.30    |
+|        fog_5_0        |  59.44   |   40.56    |
+|     shot_noise_5_0    |  56.45   |   43.55    |
+|    defocus_blur_5_0   |  70.15   |   29.85    |
+|      contrast_5_0     |  67.29   |   32.71    |
+|     zoom_blur_5_0     |  74.43   |   25.57    |
+|     brightness_5_0    |  74.41   |   25.59    |
+|       frost_5_0       |  64.83   |   35.17    |
+| elastic_transform_5_0 |  65.69   |   34.31    |
+|     glass_blur_5_0    |  58.05   |   41.95    |
+|   gaussian_noise_5_0  |  54.57   |   45.43    |
+|      pixelate_5_0     |  63.67   |   36.33    |
+|  jpeg_compression_5_0 |  61.17   |   38.83    |
+|   impulse_noise_5_0   |  59.11   |   40.89    |
+|       Total Avg       |  64.26   |   35.74    |
++-----------------------+----------+------------+ 
+You should better calculate the per-class average by yourself!
+summary: 29.08	36.30	40.56	43.55	29.85	32.71	25.57	25.59	35.17	34.31	41.95	45.43	36.33	38.83	40.89
+
+2025-12-08 02:03:58,832 TTA.test_time INFO: per domain catAvg:
+0 71.36
+1 64.46
+2 60.13
+3 56.93
+4 70.68
+5 68.53
+6 75.26
+7 75.26
+8 65.60
+9 67.35
+10 58.07
+11 55.68
+12 64.48
+13 62.23
+14 60.30
+Avg: 65.09
+
+2025-12-08 02:06:58,401 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-08 02:06:58,401 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-08 02:06:58,401 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 1e-05
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-08 02:07:32,145 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:07:52,645 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:08:10,148 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:08:30,092 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:08:47,938 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:09:05,986 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:09:23,079 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:09:41,368 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:09:59,524 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:10:16,610 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:10:33,453 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:10:51,047 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:11:08,878 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:11:26,521 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:11:44,605 TTA.test_time INFO: All Results
++-----------------------+----------+------------+
+|       Corruption      | Accuracy | Error Rate |
++-----------------------+----------+------------+
+|    motion_blur_5_0    |  70.92   |   29.08    |
+|        snow_5_0       |  63.67   |   36.33    |
+|        fog_5_0        |  59.37   |   40.63    |
+|     shot_noise_5_0    |  56.45   |   43.55    |
+|    defocus_blur_5_0   |  70.05   |   29.95    |
+|      contrast_5_0     |  67.21   |   32.79    |
+|     zoom_blur_5_0     |  74.25   |   25.75    |
+|     brightness_5_0    |  74.66   |   25.34    |
+|       frost_5_0       |  64.58   |   35.42    |
+| elastic_transform_5_0 |  65.56   |   34.44    |
+|     glass_blur_5_0    |  58.28   |   41.72    |
+|   gaussian_noise_5_0  |  54.72   |   45.28    |
+|      pixelate_5_0     |  64.09   |   35.91    |
+|  jpeg_compression_5_0 |  60.63   |   39.37    |
+|   impulse_noise_5_0   |  58.75   |   41.25    |
+|       Total Avg       |  64.21   |   35.79    |
++-----------------------+----------+------------+ 
+You should better calculate the per-class average by yourself!
+summary: 29.08	36.33	40.63	43.55	29.95	32.79	25.75	25.34	35.42	34.44	41.72	45.28	35.91	39.37	41.25
+
+2025-12-08 02:11:44,643 TTA.test_time INFO: per domain catAvg:
+0 71.36
+1 64.44
+2 60.07
+3 56.94
+4 70.61
+5 68.55
+6 75.20
+7 75.29
+8 65.46
+9 67.20
+10 58.29
+11 55.87
+12 64.86
+13 61.36
+14 60.17
+Avg: 65.04
+
+2025-12-08 02:16:37,348 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-08 02:16:37,349 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-08 02:16:37,349 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 1e-05
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-08 02:17:11,051 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:28:55,770 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-08 02:28:55,770 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-08 02:28:55,770 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 1.0
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-08 02:29:28,642 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:29:48,448 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:30:05,660 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:30:24,511 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:30:41,766 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:30:53,451 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:31:03,058 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:31:13,601 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:31:22,977 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:31:31,832 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:31:41,063 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:31:50,147 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:31:59,998 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:32:09,213 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:32:18,568 TTA.test_time INFO: All Results
++-----------------------+----------+------------+
+|       Corruption      | Accuracy | Error Rate |
++-----------------------+----------+------------+
+|    motion_blur_5_0    |  70.79   |   29.21    |
+|        snow_5_0       |  61.97   |   38.03    |
+|        fog_5_0        |  55.62   |   44.38    |
+|     shot_noise_5_0    |  43.32   |   56.68    |
+|    defocus_blur_5_0   |  54.18   |   45.82    |
+|      contrast_5_0     |   1.42   |   98.58    |
+|     zoom_blur_5_0     |   1.11   |   98.89    |
+|     brightness_5_0    |   0.34   |   99.66    |
+|       frost_5_0       |   0.26   |   99.74    |
+| elastic_transform_5_0 |   0.26   |   99.74    |
+|     glass_blur_5_0    |   0.26   |   99.74    |
+|   gaussian_noise_5_0  |   0.26   |   99.74    |
+|      pixelate_5_0     |   0.26   |   99.74    |
+|  jpeg_compression_5_0 |   0.26   |   99.74    |
+|   impulse_noise_5_0   |   0.26   |   99.74    |
+|       Total Avg       |  19.37   |   80.63    |
++-----------------------+----------+------------+ 
+You should better calculate the per-class average by yourself!
+summary: 29.21	38.03	44.38	56.68	45.82	98.58	98.89	99.66	99.74	99.74	99.74	99.74	99.74	99.74	99.74
+
+2025-12-08 02:32:18,656 TTA.test_time INFO: per domain catAvg:
+0 71.18
+1 62.91
+2 56.51
+3 44.98
+4 55.76
+5 1.44
+6 1.53
+7 0.89
+8 0.83
+9 1.00
+10 1.00
+11 1.00
+12 1.00
+13 1.00
+14 1.00
+Avg: 20.13
+
+2025-12-08 02:53:12,766 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-08 02:53:12,766 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-08 02:53:12,766 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 1e-05
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-08 02:53:47,080 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:54:06,875 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:54:24,749 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:54:43,456 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:55:00,896 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:55:18,388 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:55:35,821 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:55:53,661 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:56:11,051 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:56:28,189 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:56:45,383 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:57:01,951 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:57:18,680 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:57:35,922 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 02:57:54,082 TTA.test_time INFO: All Results
++-----------------------+----------+------------+
+|       Corruption      | Accuracy | Error Rate |
++-----------------------+----------+------------+
+|    motion_blur_5_0    |  70.98   |   29.02    |
+|        snow_5_0       |  63.73   |   36.27    |
+|        fog_5_0        |  59.08   |   40.92    |
+|     shot_noise_5_0    |  56.09   |   43.91    |
+|    defocus_blur_5_0   |  69.71   |   30.29    |
+|      contrast_5_0     |  66.87   |   33.13    |
+|     zoom_blur_5_0     |  73.84   |   26.16    |
+|     brightness_5_0    |  74.36   |   25.64    |
+|       frost_5_0       |  64.58   |   35.42    |
+| elastic_transform_5_0 |  64.89   |   35.11    |
+|     glass_blur_5_0    |  56.66   |   43.34    |
+|   gaussian_noise_5_0  |  54.10   |   45.90    |
+|      pixelate_5_0     |  63.03   |   36.97    |
+|  jpeg_compression_5_0 |  59.75   |   40.25    |
+|   impulse_noise_5_0   |  58.51   |   41.49    |
+|       Total Avg       |  63.74   |   36.26    |
++-----------------------+----------+------------+ 
+You should better calculate the per-class average by yourself!
+summary: 29.02	36.27	40.92	43.91	30.29	33.13	26.16	25.64	35.42	35.11	43.34	45.90	36.97	40.25	41.49
+
+2025-12-08 02:57:54,120 TTA.test_time INFO: per domain catAvg:
+0 71.41
+1 64.45
+2 59.84
+3 56.47
+4 70.36
+5 68.27
+6 74.67
+7 75.32
+8 65.83
+9 66.31
+10 57.08
+11 55.19
+12 63.79
+13 60.91
+14 60.40
+Avg: 64.69
+
+2025-12-08 02:59:33,804 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-08 02:59:33,804 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-08 02:59:33,804 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 0.0001
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-08 03:00:07,921 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:00:27,743 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:00:45,343 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:01:04,307 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:01:21,782 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:01:39,522 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:01:56,760 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:02:14,141 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:02:31,745 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:02:48,333 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:03:04,582 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:03:21,450 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:03:37,780 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:03:54,309 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 03:04:11,197 TTA.test_time INFO: All Results
++-----------------------+----------+------------+
+|       Corruption      | Accuracy | Error Rate |
++-----------------------+----------+------------+
+|    motion_blur_5_0    |  70.98   |   29.02    |
+|        snow_5_0       |  63.78   |   36.22    |
+|        fog_5_0        |  59.16   |   40.84    |
+|     shot_noise_5_0    |  56.11   |   43.89    |
+|    defocus_blur_5_0   |  69.81   |   30.19    |
+|      contrast_5_0     |  66.95   |   33.05    |
+|     zoom_blur_5_0     |  74.12   |   25.88    |
+|     brightness_5_0    |  74.15   |   25.85    |
+|       frost_5_0       |  64.73   |   35.27    |
+| elastic_transform_5_0 |  64.76   |   35.24    |
+|     glass_blur_5_0    |  56.76   |   43.24    |
+|   gaussian_noise_5_0  |  53.77   |   46.23    |
+|      pixelate_5_0     |  63.05   |   36.95    |
+|  jpeg_compression_5_0 |  59.57   |   40.43    |
+|   impulse_noise_5_0   |  58.20   |   41.80    |
+|       Total Avg       |  63.73   |   36.27    |
++-----------------------+----------+------------+ 
+You should better calculate the per-class average by yourself!
+summary: 29.02	36.22	40.84	43.89	30.19	33.05	25.88	25.85	35.27	35.24	43.24	46.23	36.95	40.43	41.80
+
+2025-12-08 03:04:11,291 TTA.test_time INFO: per domain catAvg:
+0 71.41
+1 64.52
+2 59.93
+3 56.54
+4 70.43
+5 68.41
+6 74.92
+7 75.06
+8 65.80
+9 66.18
+10 57.07
+11 55.10
+12 64.10
+13 60.51
+14 59.85
+Avg: 64.66
+
+2025-12-08 04:14:47,267 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-08 04:14:47,267 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-08 04:14:47,268 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 0.0001
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-08 04:15:19,553 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:15:38,165 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:15:55,028 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:16:05,940 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-08 04:16:05,941 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-08 04:16:05,941 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 0.0001
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-08 04:16:28,723 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:16:38,407 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:16:48,016 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:16:57,580 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:17:06,925 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:17:16,293 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:17:25,159 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:17:33,776 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:17:42,613 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:17:51,858 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:18:00,978 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:18:09,722 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:18:18,938 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:18:27,844 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:18:36,844 TTA.test_time INFO: All Results
++-----------------------+----------+------------+
+|       Corruption      | Accuracy | Error Rate |
++-----------------------+----------+------------+
+|    motion_blur_5_0    |  70.10   |   29.90    |
+|        snow_5_0       |  56.04   |   43.96    |
+|        fog_5_0        |  43.73   |   56.27    |
+|     shot_noise_5_0    |  46.47   |   53.53    |
+|    defocus_blur_5_0   |  56.37   |   43.63    |
+|      contrast_5_0     |  56.24   |   43.76    |
+|     zoom_blur_5_0     |  56.48   |   43.52    |
+|     brightness_5_0    |  72.73   |   27.27    |
+|       frost_5_0       |  50.28   |   49.72    |
+| elastic_transform_5_0 |  36.97   |   63.03    |
+|     glass_blur_5_0    |  41.67   |   58.33    |
+|   gaussian_noise_5_0  |  45.54   |   54.46    |
+|      pixelate_5_0     |  50.41   |   49.59    |
+|  jpeg_compression_5_0 |  49.85   |   50.15    |
+|   impulse_noise_5_0   |  50.34   |   49.66    |
+|       Total Avg       |  52.21   |   47.79    |
++-----------------------+----------+------------+ 
+You should better calculate the per-class average by yourself!
+summary: 29.90	43.96	56.27	53.53	43.63	43.76	43.52	27.27	49.72	63.03	58.33	54.46	49.59	50.15	49.66
+
+2025-12-08 04:18:36,927 TTA.test_time INFO: per domain catAvg:
+0 69.95
+1 56.83
+2 42.71
+3 47.53
+4 56.77
+5 57.20
+6 57.51
+7 73.15
+8 50.63
+9 38.94
+10 42.81
+11 46.58
+12 51.49
+13 50.75
+14 52.10
+Avg: 53.00
+
+2025-12-08 04:18:57,160 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-08 04:18:57,160 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-08 04:18:57,161 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 0.0001
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-08 04:19:19,574 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:19:30,614 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:19:40,393 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:19:50,409 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:20:00,054 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:20:09,980 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:20:19,251 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:20:28,801 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:20:38,369 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:20:47,820 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:20:57,629 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:21:07,473 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:21:17,509 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:21:26,813 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-08 04:21:36,925 TTA.test_time INFO: All Results
++-----------------------+----------+------------+
+|       Corruption      | Accuracy | Error Rate |
++-----------------------+----------+------------+
+|    motion_blur_5_0    |  70.85   |   29.15    |
+|        snow_5_0       |  63.36   |   36.64    |
+|        fog_5_0        |  58.59   |   41.41    |
+|     shot_noise_5_0    |  55.11   |   44.89    |
+|    defocus_blur_5_0   |  69.07   |   30.93    |
+|      contrast_5_0     |  66.51   |   33.49    |
+|     zoom_blur_5_0     |  72.76   |   27.24    |
+|     brightness_5_0    |  74.51   |   25.49    |
+|       frost_5_0       |  64.47   |   35.53    |
+| elastic_transform_5_0 |  63.73   |   36.27    |
+|     glass_blur_5_0    |  55.44   |   44.56    |
+|   gaussian_noise_5_0  |  52.53   |   47.47    |
+|      pixelate_5_0     |  61.33   |   38.67    |
+|  jpeg_compression_5_0 |  59.39   |   40.61    |
+|   impulse_noise_5_0   |  59.60   |   40.40    |
+|       Total Avg       |  63.15   |   36.85    |
++-----------------------+----------+------------+ 
+You should better calculate the per-class average by yourself!
+summary: 29.15	36.64	41.41	44.89	30.93	33.49	27.24	25.49	35.53	36.27	44.56	47.47	38.67	40.61	40.40
+
+2025-12-08 04:21:36,976 TTA.test_time INFO: per domain catAvg:
+0 71.24
+1 64.11
+2 59.20
+3 55.61
+4 69.44
+5 68.03
+6 73.38
+7 74.98
+8 65.41
+9 65.37
+10 55.71
+11 52.93
+12 62.11
+13 59.90
+14 60.34
+Avg: 63.85
+
+2025-12-12 03:53:46,961 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-12 03:53:46,961 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-12 03:53:46,961 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 0.001
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-12 03:54:11,223 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:54:22,358 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:54:32,283 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:54:42,612 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:54:52,512 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:55:02,817 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:55:12,363 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:55:21,995 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:55:31,791 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:55:41,744 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:55:51,949 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:56:01,757 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:56:11,465 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:56:21,155 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:56:30,748 TTA.test_time INFO: All Results
++-----------------------+----------+------------+
+|       Corruption      | Accuracy | Error Rate |
++-----------------------+----------+------------+
+|    motion_blur_5_0    |  70.87   |   29.13    |
+|        snow_5_0       |  63.34   |   36.66    |
+|        fog_5_0        |  58.59   |   41.41    |
+|     shot_noise_5_0    |  55.08   |   44.92    |
+|    defocus_blur_5_0   |  69.07   |   30.93    |
+|      contrast_5_0     |  66.51   |   33.49    |
+|     zoom_blur_5_0     |  72.76   |   27.24    |
+|     brightness_5_0    |  74.43   |   25.57    |
+|       frost_5_0       |  64.47   |   35.53    |
+| elastic_transform_5_0 |  63.73   |   36.27    |
+|     glass_blur_5_0    |  55.44   |   44.56    |
+|   gaussian_noise_5_0  |  52.53   |   47.47    |
+|      pixelate_5_0     |  61.35   |   38.65    |
+|  jpeg_compression_5_0 |  59.39   |   40.61    |
+|   impulse_noise_5_0   |  59.57   |   40.43    |
+|       Total Avg       |  63.14   |   36.86    |
++-----------------------+----------+------------+ 
+You should better calculate the per-class average by yourself!
+summary: 29.13	36.66	41.41	44.92	30.93	33.49	27.24	25.57	35.53	36.27	44.56	47.47	38.65	40.61	40.43
+
+2025-12-12 03:56:30,800 TTA.test_time INFO: per domain catAvg:
+0 71.28
+1 64.10
+2 59.20
+3 55.57
+4 69.44
+5 68.03
+6 73.42
+7 74.91
+8 65.41
+9 65.37
+10 55.71
+11 52.93
+12 62.13
+13 59.91
+14 60.33
+Avg: 63.85
+
+2025-12-12 03:57:33,825 TTA INFO: Namespace(adapter_config_file='configs/adapter/mert.yaml', dataset_config_file='configs/dataset/cifar100.yaml', order_config_file='', protocol_config_file='configs/protocol/gli_tta.yaml', opts=['OUTPUT_DIR', 'bn/cifar10'])
+2025-12-12 03:57:33,825 TTA INFO: Loaded configuration file: 
+	adapter: configs/adapter/mert.yaml
+	dataset: configs/dataset/cifar100.yaml
+	order: 
+2025-12-12 03:57:33,825 TTA INFO: Running with config:
+ADAPTER:
+  BN:
+    ALPHA: 0.5
+    GAMMA: 0.2
+    THETA: 0.8
+  COTTA:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    RST_M: 0.1
+    STEPS: 1
+  DATTA:
+    ALPHA: 0.5
+    THETA: 0.8
+  LAME:
+    CLASSIFIER: fc
+    LAME_AFFINITY: kNN
+    LAME_FORCE_SYMMETRY: False
+    LAME_KNN: 5
+    LAME_SIGMA: 1.0
+  MERT:
+    EMA_DECAY: 0.999
+    L1_LAMBDA: 0.1
+    PRUNE_Q: 0.1
+  NAME: mert
+  NORM:
+    MOMENTUM: 1.0
+  PETAL:
+    AP: 0.9
+    EPISODIC: False
+    MT_ALPHA: 0.99
+    PERC: 0.03
+    RST_M: 0.1
+    SPW: 1e-08
+    STEPS: 1
+  RoTTA:
+    ALPHA: 0.05
+    LAMBDA_T: 1.0
+    LAMBDA_U: 1.0
+    MEMORY_SIZE: 64
+    NU: 0.001
+    UPDATE_FREQUENCY: 64
+  TRIBE:
+    ETA: 0.005
+    GAMMA: 0.0
+    H0: 0.05
+    LAMBDA: 0.5
+  TTAC:
+    CLASSIFIER: fc
+BN:
+  EPS: 1e-05
+  MOM: 0.1
+CKPT_DIR: ./ckpt
+CKPT_PATH: 
+CORRUPTION:
+  DATASET: cifar100
+  NUM_CLASS: 100
+  NUM_EX: 10000
+  SEVERITY: [5]
+  SOURCE: 
+  TYPE: ['motion_blur', 'snow', 'fog', 'shot_noise', 'defocus_blur', 'contrast', 'zoom_blur', 'brightness', 'frost', 'elastic_transform', 'glass_blur', 'gaussian_noise', 'pixelate', 'jpeg_compression', 'impulse_noise']
+CUDNN:
+  BENCHMARK: True
+DATA_DIR: ./datasets
+DEBUG: 0
+DESC: 
+INPUT:
+  INTERPOLATION: bilinear
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+  SIZE: (32, 32)
+  TRANSFORMS: ()
+LOADER:
+  NUM_WORKS: 2
+  SAMPLER:
+    CLASS_RATIO: constant
+    GAMMA: 0.1
+    IMB_FACTOR: 10
+    TYPE: gli_tta
+LOG_DEST: log.txt
+LOG_TIME: 
+MODEL:
+  ARCH: Hendrycks2020AugMix_ResNeXt
+  EPISODIC: False
+  PROJECTION:
+    EMB_DIM: 2048
+    FEA_DIM: 128
+    HEAD: linear
+OPTIM:
+  BETA: 0.9
+  DAMPENING: 0.0
+  LR: 0.001
+  METHOD: Adam
+  MOMENTUM: 0.9
+  NESTEROV: True
+  STEPS: 1
+  WD: 0.0
+OUTPUT_DIR: bn/cifar10
+SEED: 427
+SOURCE:
+  NUM_WORKERS: 4
+TEST:
+  BATCH_SIZE: 64
+2025-12-12 03:57:57,647 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:58:08,735 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:58:18,648 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:58:29,263 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:58:39,393 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:58:49,679 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:58:59,574 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:59:09,216 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:59:18,934 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:59:28,954 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:59:38,681 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:59:48,691 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 03:59:58,676 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 04:00:08,702 TTA.test_time INFO: Memory buffer cleared due to domain switch.
+2025-12-12 04:00:18,290 TTA.test_time INFO: All Results
++-----------------------+----------+------------+
+|       Corruption      | Accuracy | Error Rate |
++-----------------------+----------+------------+
+|    motion_blur_5_0    |  70.85   |   29.15    |
+|        snow_5_0       |  63.36   |   36.64    |
+|        fog_5_0        |  58.59   |   41.41    |
+|     shot_noise_5_0    |  55.08   |   44.92    |
+|    defocus_blur_5_0   |  69.07   |   30.93    |
+|      contrast_5_0     |  66.51   |   33.49    |
+|     zoom_blur_5_0     |  72.81   |   27.19    |
+|     brightness_5_0    |  74.43   |   25.57    |
+|       frost_5_0       |  64.50   |   35.50    |
+| elastic_transform_5_0 |  63.73   |   36.27    |
+|     glass_blur_5_0    |  55.44   |   44.56    |
+|   gaussian_noise_5_0  |  52.53   |   47.47    |
+|      pixelate_5_0     |  61.33   |   38.67    |
+|  jpeg_compression_5_0 |  59.39   |   40.61    |
+|   impulse_noise_5_0   |  59.60   |   40.40    |
+|       Total Avg       |  63.15   |   36.85    |
++-----------------------+----------+------------+ 
+You should better calculate the per-class average by yourself!
+summary: 29.15	36.64	41.41	44.92	30.93	33.49	27.19	25.57	35.50	36.27	44.56	47.47	38.67	40.61	40.40
+
+2025-12-12 04:00:18,349 TTA.test_time INFO: per domain catAvg:
+0 71.24
+1 64.11
+2 59.20
+3 55.57
+4 69.44
+5 68.03
+6 73.46
+7 74.91
+8 65.51
+9 65.37
+10 55.71
+11 52.93
+12 62.11
+13 59.90
+14 60.34
+Avg: 63.86
+

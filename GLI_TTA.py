@@ -81,10 +81,8 @@ def testTimeAdaptation(cfg):
         domain_id = int(domain[0].item())
         # 检查是否切换到新域
         if prev_domain is not None and domain_id != prev_domain:
-            if str(cfg.ADAPTER.NAME) in ["datta", "bn", "tribe"]:
-                # tta_model.reset()
+            if str(cfg.ADAPTER.NAME) in ["datta", "bn", "tribe", "mert"]:
                 balance = False
-                #清空 memory buffer
                 if hasattr(tta_model, "mem") and hasattr(tta_model.mem, "data"):
                     for class_list in tta_model.mem.data:
                         class_list.clear()
