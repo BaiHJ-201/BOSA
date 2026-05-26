@@ -10,6 +10,25 @@ import copy
 import torchvision.transforms as transforms
 from . import my_transforms
 import PIL
+import numpy as np
+
+# ref: https://github.com/Oldpan/Pytorch-Memory-Utils/blob/master/gpu_mem_track.py
+dtype_memory_size_dict = {
+    torch.float64: 64/8,
+    torch.double: 64/8,
+    torch.float32: 32/8,
+    torch.float: 32/8,
+    torch.float16: 16/8,
+    torch.half: 16/8,
+    torch.int64: 64/8,
+    torch.long: 64/8,
+    torch.int32: 32/8,
+    torch.int: 32/8,
+    torch.int16: 16/8,
+    torch.short: 16/6,
+    torch.uint8: 8/8,
+    torch.int8: 8/8,
+}
 
 def gauss_symm_kl_divergence(mean1, var1, mean2, var2, eps):
     if not torch.is_tensor(eps):
@@ -98,12 +117,12 @@ class StochCacheFunction(torch.autograd.Function):
 
     @staticmethod
     def forward(ctx, MyBatchNorm, preserve_rng_state, x, weight, bias):
-        any_requires_grad = x.requires_grad or weight.requires_grad or bias.requires_grad
-        if not any_requires_grad:
-            with torch.no_grad():
-                y = batch_norm(MyBatchNorm.mu, MyBatchNorm.sigma, x, weight, bias, eps=MyBatchNorm.eps)
-            ctx.req_cache = False
-            return y
+        # any_requires_grad = x.requires_grad or weight.requires_grad or bias.requires_grad
+        # if not any_requires_grad:
+        #     with torch.no_grad():
+        #         y = batch_norm(MyBatchNorm.mu, MyBatchNorm.sigma, x, weight, bias, eps=MyBatchNorm.eps)
+        #     ctx.req_cache = False
+        #     return y
         check_backward_validity([x, weight, bias])
         ctx.MyBatchNorm = MyBatchNorm
         ctx.preserve_rng_state = preserve_rng_state
@@ -131,8 +150,10 @@ class StochCacheFunction(torch.autograd.Function):
                 n_rm = int(n_channels * MyBatchNorm.prune_q)
                 ctx.n_rm = n_rm
                 if n_rm > 0:
-                    weight_abs = weight.abs().squeeze()  # 4D[1,C,1,1] → 1D[C]
-                    sorted_indices = torch.argsort(weight_abs, dim=0)  
+                    weight_abs = weight.abs().squeeze() 
+                    x_norm = torch.norm(x.float(), p=2, dim=(0, 2, 3)) 
+                    wanda_score = weight_abs * x_norm 
+                    sorted_indices = torch.argsort(wanda_score, dim=0)
                     ctx.removed_idxs = sorted_indices[:n_rm]  
                     ctx.remained_idxs = sorted_indices[n_rm:]  
                     ctx.n_channels = n_channels
@@ -143,7 +164,6 @@ class StochCacheFunction(torch.autograd.Function):
 
                 ctx.save_for_backward(x)
         return y
-
     @staticmethod
     def backward(ctx, grad_out):
         if not torch.autograd._is_checkpoint_valid():
@@ -179,8 +199,8 @@ class StochCacheFunction(torch.autograd.Function):
             detached_x.requires_grad = x.requires_grad
             weight.requires_grad, bias.requires_grad = MyBatchNorm.weight.requires_grad, MyBatchNorm.bias.requires_grad
             with torch.enable_grad(), \
-                torch.cuda.amp.autocast(**ctx.gpu_autocast_kwargs), \
-                torch.cpu.amp.autocast(**ctx.cpu_autocast_kwargs):
+                torch.amp.autocast('cuda', **ctx.gpu_autocast_kwargs), \
+                torch.amp.autocast('cpu', **ctx.cpu_autocast_kwargs):
                 if not ctx.req_cache:
                     weight = weight.detach()
                     bias = bias.detach()
@@ -217,12 +237,23 @@ class MyBatchNorm(nn.Module):
         self.eps = 1e-5
         self.prune_q = prune_q
         self.full_matched = False   
-
+        self.forward_cache_size = None
     def reset_statistic(self):
-        # self.full_matched = True
-        # self.alpha = datta_alpha
-        self.reset_mean = True
+        self.forward_cache_size = None
+        self.full_matched = False   
 
+    def cache_size(self):
+        assert self.forward_cache_size is not None, "Please call this after forward!"
+        forward_cache = self.forward_cache_size
+        backward_cache = 0.
+        if self.weight.requires_grad and not self.full_matched:
+            backward_cache = np.prod(forward_cache)
+            backward_cache *= dtype_memory_size_dict[torch.float]
+        forward_cache = np.prod(forward_cache) * \
+            dtype_memory_size_dict[torch.float]
+        # else:
+        return forward_cache, backward_cache
+    
     def forward_w_update_stats(self, X):
         if self.training:
             buffer_mean = torch.mean(X, dim=(0, 2, 3), keepdim=True).clone()
@@ -253,6 +284,9 @@ class MyBatchNorm(nn.Module):
             self.sigma.copy_(target_std ** 2)
 
     def forward(self, X):
+        self.forward_cache_size = list(X.shape)
+        self.forward_cache_size[1] = int(
+            (1.-self.prune_q) * self.forward_cache_size[1])
         self.forward_w_update_stats(X)
         return StochCacheFunction.apply(self, True, X, self.weight, self.bias)
 
@@ -270,7 +304,7 @@ class MERT(BaseAdapter):
             p.detach_()
         return
 
-    def forward_and_adapt(self, batch_data):
+    def forward_and_adapt(self, batch_data, model, optimizer):
         with torch.no_grad():
             self.teacher.eval()
             teacher_outputs = self.teacher(batch_data)
@@ -299,20 +333,23 @@ class MERT(BaseAdapter):
         entropy = self.self_softmax_entropy(ema_out)
         
         loss = (softmax_entropy(stu_out, ema_out)).mean()
-        bn_l1_loss = compute_bn_weight_l1_loss(self.model, self.l1_lambda)
-        loss += bn_l1_loss
         
-        # if has_accum_bn_grad(self.model):
-        #     loss.backward()
-        #     self.optimizer.step()
-        #     self.optimizer.zero_grad()
+        if has_accum_bn_grad(self.model):
+            loss.backward()
+            self.optimizer.step()
+            self.optimizer.zero_grad()
         self.update_teacher()
 
     @torch.no_grad()
     def update_teacher(self):
         for t_params, s_params in zip(self.teacher.parameters(), self.model.parameters()):
             t_params.data.mul_(self.ema_decay).add_(s_params.data * (1 - self.ema_decay))
-
+            
+    def reset(self):
+        for m in self.model.modules():
+            if isinstance(m, MyBatchNorm):
+                m.reset_statistic()
+       
     @staticmethod
     def self_softmax_entropy(x):
         return -(x.softmax(dim=-1) * x.log_softmax(dim=-1)).sum(dim=-1)
@@ -330,13 +367,13 @@ class MERT(BaseAdapter):
         model.requires_grad_(False)
         for m in model.modules():  
             if isinstance(m, MyBatchNorm):
-                m.weight.requires_grad = False
-                m.bias.requires_grad = False
+                m.weight.requires_grad = True
+                m.bias.requires_grad = True
         return model
 
 def get_tta_transforms(gaussian_std: float = 0.005, soft=False, clip_inputs=False, dataset='cifar'):
     img_shape = (32, 32, 3) if 'cifar' in dataset else (224, 224, 3)
-    print('img_shape in cotta transform', img_shape)
+    print('img_shape transform', img_shape)
     n_pixels = img_shape[0]
 
     clip_min, clip_max = 0.0, 1.0
@@ -369,16 +406,6 @@ def get_tta_transforms(gaussian_std: float = 0.005, soft=False, clip_inputs=Fals
     ])
     return tta_transforms
 
-def compute_bn_weight_l1_loss(model, l1_lambda=1e-5):
-    l1_loss = 0.0
-    for m in model.modules():
-        if isinstance(m, MyBatchNorm):
-            # 提取weight并计算L1范数（4D→1D，避免维度影响）
-            weight = m.weight.squeeze()  # [1,C,1,1] → [C]
-            l1_loss += torch.norm(weight, p=1)  # L1范数：绝对值之和
-    l1_loss = l1_lambda * l1_loss
-    return l1_loss
-
 @torch.jit.script
 def softmax_entropy(x, x_ema):
     return -(x_ema.softmax(1) * x.log_softmax(1)).sum(1)
@@ -396,3 +423,24 @@ def has_accum_bn_grad(model):
     if has_acc_bn and all_mached:
         return False
     return True
+
+def get_bn_cache_size(model: nn.Module, return_dict=False):
+    max_forward_cs = 0.
+    total_backward_cs = 0.
+    n_accum_bn = 0
+    module_cache_size = {}
+    for m in model.modules():
+        if isinstance(m, MyBatchNorm):
+            forward_cs, backward_cs = m.cache_size()
+            # print(f" {m.name}: {backward_cs/1e6:.3f}")
+            if forward_cs > max_forward_cs:
+                max_forward_cs = forward_cs
+            total_backward_cs += backward_cs
+            module_cache_size[m.name] = (forward_cs, backward_cs)
+            n_accum_bn += 1
+    if n_accum_bn == 0:
+        max_forward_cs, total_backward_cs = None, None
+    if return_dict:
+        return max_forward_cs, total_backward_cs, module_cache_size
+    else:
+        return max_forward_cs, total_backward_cs

@@ -6,175 +6,157 @@ from ofa.utils import Hswish, Hsigmoid, MyConv2d
 from ofa.utils.layers import ResidualBlock
 from torchvision.models.resnet import BasicBlock, Bottleneck
 from torchvision.models.mobilenetv2 import InvertedResidual
-
+from core.utils.bn_layers import BalancedRobustBN2dV5, BalancedRobustBN2dEMA, BalancedRobustBN1dV5
+from core.adapter.mert import MyBatchNorm, get_bn_cache_size
 __all__ = ['count_model_size', 'count_activation_size', 'profile_memory_cost']
 
 
-def count_model_size(net, trainable_param_bits=32, frozen_param_bits=8, print_log=True):
-	frozen_param_bits = 32 if frozen_param_bits is None else frozen_param_bits
+def count_model_size(adapter):
+    """处理参数共享场景，避免重复统计"""
+    model_components = {}
+    # 收集所有模型组件（包括aux_model、source_model等）
+    all_modules = []
+    # 先添加主模型
+    main_model = adapter.model
+    all_modules.append(("main_model", main_model))
+    # 再添加其他模块（如aux_model、source_model）
+    for attr_name in dir(adapter):
+        attr = getattr(adapter, attr_name)
+        if isinstance(attr, torch.nn.Module) and attr_name not in ['model', 'logger']:
+            all_modules.append((attr_name, attr))
+    
+    # 记录已统计的参数地址，避免重复计算
+    counted_param_ids = set()
+    total_size = 0
+    
+    # 遍历所有模块，统计非共享参数
+    for name, module in all_modules:
+        for param in module.parameters():
+            param_id = id(param)
+            if param_id not in counted_param_ids:
+                # 计算参数存储大小（假设为float32，4字节/元素）
+                param_size = param.numel() * 4  # 若为其他类型需调整（如float16为2字节）
+                total_size += param_size
+                counted_param_ids.add(param_id)
+    
+    return total_size
 
-	trainable_param_size = 0
-	frozen_param_size = 0
-	for p in net.parameters():
-		if p.requires_grad:
-			trainable_param_size += trainable_param_bits / 8 * p.numel()
-		else:
-			frozen_param_size += frozen_param_bits / 8 * p.numel()
-	model_size = trainable_param_size + frozen_param_size
-	if print_log:
-		print('Total: %d' % model_size,
-		      '\tTrainable: %d (data bits %d)' % (trainable_param_size, trainable_param_bits),
-		      '\tFrozen: %d (data bits %d)' % (frozen_param_size, frozen_param_bits))
-	# Byte
-	return model_size
+def count_activation_size(net, input_size=(1, 3, 224, 224), activation_bits=32):
+    """
+    计算模型（支持参数共享的多模型，如TRIBE中的aux_model和model）的激活值内存占用
+    优化点：避免重复统计共享层（非BN层）的激活值
+    """
+    act_byte = activation_bits / 8
+   
+    # --------------------------
+    # 1. 提取所有子模型
+    # --------------------------
+    def _get_all_submodels(net):
+        models = []
+        for attr_name in dir(net):
+            attr = getattr(net, attr_name)
+            if isinstance(attr, nn.Module):
+                models.append(attr)
+        return models
 
+    all_models = _get_all_submodels(net)
+    if not all_models:
+        raise ValueError("未找到有效的模型")
 
-def count_activation_size(net, input_size=(1, 3, 224, 224), require_backward=True, activation_bits=32):
-	act_byte = activation_bits / 8
-	model = copy.deepcopy(net)
+    # --------------------------
+    # 2. 深拷贝模型并保留共享层关系
+    # --------------------------
+    copied_models = [copy.deepcopy(m) for m in all_models]
 
-	# noinspection PyArgumentList
-	def count_convNd(m, x, y):
-		# count activation size required by backward
-		if m.weight is not None and m.weight.requires_grad:
-			m.grad_activations = torch.Tensor([x[0].numel() * act_byte])  # bytes
-		else:
-			m.grad_activations = torch.Tensor([0])
-		# temporary memory footprint required by inference
-		m.tmp_activations = torch.Tensor([x[0].numel() * act_byte + y.numel() * act_byte // m.groups])  # bytes
+    # --------------------------
+    # 3. 标记共享层
+    # --------------------------
+    param_layer_map = {}
+    shared_layers = set()
+    for model in copied_models:
+        for layer in model.modules():
+            if len(list(layer.children())) > 0:
+                continue
+            for p in layer.parameters(recurse=False):
+                pid = id(p)
+                if pid in param_layer_map:
+                    shared_layers.add(layer)
+                    shared_layers.add(param_layer_map[pid])
+                else:
+                    param_layer_map[pid] = layer
 
-	# noinspection PyArgumentList
-	def count_linear(m, x, y):
-		# count activation size required by backward
-		if m.weight is not None and m.weight.requires_grad:
-			m.grad_activations = torch.Tensor([x[0].numel() * act_byte])  # bytes
-		else:
-			m.grad_activations = torch.Tensor([0])
-		# temporary memory footprint required by inference
-		m.tmp_activations = torch.Tensor([x[0].numel() * act_byte + y.numel() * act_byte])  # bytes
+    # --------------------------
+    # 4. 设置 device 和输入
+    # --------------------------
+    def _get_device(model):
+        try:
+            return next(model.parameters()).device
+        except StopIteration:
+            return torch.device('cpu')
 
-	# noinspection PyArgumentList
-	def count_bn(m, x, _):
-		# count activation size required by backward
-		if m.weight is not None and m.weight.requires_grad:
-			m.grad_activations = torch.Tensor([x[0].numel() * act_byte])  # bytes
-		else:
-			m.grad_activations = torch.Tensor([0])
-		# temporary memory footprint required by inference
-		m.tmp_activations = torch.Tensor([x[0].numel() * act_byte])  # bytes
+    device = _get_device(copied_models[0])
+    input_sizes = [input_size] * len(copied_models)
 
-	def count_balanced_bn(m, x, _):
-		base = x[0].numel() * act_byte  # 输入激活大小
-		tmp = base
-		
-		# 如果有 label 统计，还会额外生成 delta_pre, delta_k 等中间张量
-		if m.label is not None:
-			tmp += x[0].numel() * act_byte * 2  # 粗略估算 update_statistics 的额外内存
-		
-		# 梯度激活
-		grad = base if (m.weight is not None and m.weight.requires_grad) else 0
-		
-		m.grad_activations = torch.Tensor([grad])
-		m.tmp_activations = torch.Tensor([tmp])
-		
-	# noinspection PyArgumentList
-	def count_relu(m, x, _):
-		# count activation size required by backward
-		if require_backward:
-			m.grad_activations = torch.Tensor([x[0].numel() / 8])  # bytes
-		else:
-			m.grad_activations = torch.Tensor([0])
-		# temporary memory footprint required by inference
-		m.tmp_activations = torch.Tensor([x[0].numel() * act_byte])  # bytes
+    # --------------------------
+    # 5. backward 激活统计钩子
+    # --------------------------
+    def _count_grad(m, x, y):
+        # 只统计 grad_activation，tmp_activations 不累加
+        if hasattr(m, 'weight') and m.weight is not None and m.weight.requires_grad:
+            m.grad_activations = torch.tensor(x[0].numel() * act_byte, device=device)
+        else:
+            m.grad_activations = torch.tensor(0.0, device=device)
+        m.tmp_activations = torch.tensor(0.0, device=device)
 
-	# noinspection PyArgumentList
-	def count_smooth_act(m, x, _):
-		# count activation size required by backward
-		if require_backward:
-			m.grad_activations = torch.Tensor([x[0].numel() * act_byte])  # bytes
-		else:
-			m.grad_activations = torch.Tensor([0])
-		# temporary memory footprint required by inference
-		m.tmp_activations = torch.Tensor([x[0].numel() * act_byte])  # bytes
+    def hook_wrapper(m, x, y):
+        if m in shared_layers:
+            if not hasattr(m, 'counted'):
+                m.counted = True
+                _count_grad(m, x, y)
+            else:
+                m.grad_activations = torch.tensor(0.0, device=device)
+                m.tmp_activations = torch.tensor(0.0, device=device)
+        else:
+            _count_grad(m, x, y)
 
-	def add_hooks(m_):
-		if len(list(m_.children())) > 0:
-			return
+    def add_hooks(model):
+        for m in model.modules():
+            if len(list(m.children())) > 0:
+                continue
+            m.register_buffer('grad_activations', torch.tensor(0.0, device=device))
+            m.register_buffer('tmp_activations', torch.tensor(0.0, device=device))
+            m.counted = False
+            # 只给非 MyBatchNorm 的层注册 hook
+            if not isinstance(m, MyBatchNorm):
+                m.register_forward_hook(hook_wrapper)
 
-		m_.register_buffer('grad_activations', torch.zeros(1))
-		m_.register_buffer('tmp_activations', torch.zeros(1))
+    for model in copied_models:
+        model.eval()
+        add_hooks(model)
 
-		if type(m_) in [nn.Conv1d, nn.Conv2d, nn.Conv3d, MyConv2d]:
-			fn = count_convNd
-		elif type(m_) in [nn.Linear]:
-			fn = count_linear
-		elif type(m_) in [nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm]:
-			fn = count_bn
-		elif type(m_) in [nn.ReLU, nn.ReLU6, nn.LeakyReLU]:
-			fn = count_relu
-		elif type(m_) in [nn.Sigmoid, nn.Tanh, Hswish, Hsigmoid]:
-			fn = count_smooth_act
-		else:
-			fn = None
+    # --------------------------
+    # 6. 执行一次 forward（no_grad）触发 hook
+    # --------------------------
+    for model, in_size in zip(copied_models, input_sizes):
+        x = torch.zeros(in_size, device=device)
+        with torch.no_grad():
+            model(x)
 
-		if fn is not None:
-			_handler = m_.register_forward_hook(fn)
-
-	model.eval()
-	model.apply(add_hooks)
-
-	x = torch.zeros(input_size).to(model.parameters().__next__().device)
-	with torch.no_grad():
-		model(x)
-
-	memory_info_dict = {
-		'peak_activation_size': torch.zeros(1),
-		'grad_activation_size': torch.zeros(1),
-		'residual_size': torch.zeros(1),
-	}
-
-	for m in model.modules():
-		if len(list(m.children())) == 0:
-			def new_forward(_module):
-				def lambda_forward(_x):
-					current_act_size = _module.tmp_activations + memory_info_dict['grad_activation_size'] + \
-					                   memory_info_dict['residual_size']
-					memory_info_dict['peak_activation_size'] = max(
-						current_act_size, memory_info_dict['peak_activation_size']
-					)
-					memory_info_dict['grad_activation_size'] += _module.grad_activations
-					return _module.old_forward(_x)
-
-				return lambda_forward
-
-			m.old_forward = m.forward
-			m.forward = new_forward(m)
-
-		if (isinstance(m, ResidualBlock) and m.shortcut is not None) or \
-				(isinstance(m, InvertedResidual) and m.use_res_connect) or \
-				type(m) in [BasicBlock, Bottleneck]:
-			def new_forward(_module):
-				def lambda_forward(_x):
-					memory_info_dict['residual_size'] = _x.numel() * act_byte
-					result = _module.old_forward(_x)
-					memory_info_dict['residual_size'] = 0
-					return result
-
-				return lambda_forward
-
-			m.old_forward = m.forward
-			m.forward = new_forward(m)
-
-	with torch.no_grad():
-		model(x)
-
-	return memory_info_dict['peak_activation_size'].item(), memory_info_dict['grad_activation_size'].item()
+    # --------------------------
+    # 7. 累加 grad_activation
+    # --------------------------
+    total_grad_activation = torch.tensor(0.0, device=device)
+    for model in copied_models:
+        for m in model.modules():
+            if hasattr(m, 'grad_activations'):
+                total_grad_activation += m.grad_activations
+    return total_grad_activation.item()
 
 
-def profile_memory_cost(net, input_size=(1, 3, 224, 224), require_backward=True,
-                        activation_bits=32, trainable_param_bits=32, frozen_param_bits=8, batch_size=8):
-	param_size = count_model_size(net, trainable_param_bits, frozen_param_bits, print_log=True)
-	activation_size, _ = count_activation_size(net, input_size, require_backward, activation_bits)
+def profile_memory_cost(net, input_size=(1, 3, 224, 224), 
+                        activation_bits=32, batch_size=8):
+	param_size = count_model_size(net)
+	activation_size = count_activation_size(net, input_size, activation_bits)
 
-	memory_cost = activation_size * batch_size + param_size
+	memory_cost = activation_size * batch_size 
 	return memory_cost, {'param_size': param_size, 'act_size': activation_size}

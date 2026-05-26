@@ -22,7 +22,9 @@ import time
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
 from tinytl.memory_cost_profiler import profile_memory_cost
-
+from typing import Dict, List, Union, Any
+from tinytl.memory_cost_profiler import count_model_size, count_activation_size
+from core.adapter.mert import get_bn_cache_size
 def testTimeAdaptation(cfg):
     logger = logging.getLogger("TTA.test_time")
     # model, optimizer
@@ -34,7 +36,16 @@ def testTimeAdaptation(cfg):
 
     tta_model = tta_adapter(cfg, model, optimizer)
     tta_model.cuda()
-
+    # profile memory cost
+    input_size = (1, 3, *cfg.INPUT.SIZE)
+    memory_cost, detailed_info = profile_memory_cost(
+		tta_model, input_size, activation_bits=32, batch_size=cfg.TEST.BATCH_SIZE,
+	)
+    net_info = {
+		'memory_cost': memory_cost / 1e6,
+		'param_size': detailed_info['param_size'] / 1e6,
+		'act_size': detailed_info['act_size'] / 1e6,
+	}
     loader, processor = build_loader(cfg, cfg.CORRUPTION.DATASET, cfg.CORRUPTION.TYPE, cfg.CORRUPTION.SEVERITY)
     # loader, processor, memory_buffer = build_loader(cfg, cfg.CORRUPTION.DATASET, cfg.CORRUPTION.TYPE, cfg.CORRUPTION.SEVERITY)
 
@@ -81,7 +92,7 @@ def testTimeAdaptation(cfg):
         domain_id = int(domain[0].item())
         # 检查是否切换到新域
         if prev_domain is not None and domain_id != prev_domain:
-            if str(cfg.ADAPTER.NAME) in ["datta", "bn", "tribe", "mert"]:
+            if str(cfg.ADAPTER.NAME) in ["mert"]:
                 balance = False
                 if hasattr(tta_model, "mem") and hasattr(tta_model.mem, "data"):
                     for class_list in tta_model.mem.data:
@@ -143,7 +154,24 @@ def testTimeAdaptation(cfg):
         str_ += "%d %.2f\n" % (i, catAvg[i] * 100.)
     str_ += "Avg: %.2f\n" % (catAvg.mean() * 100.)
     logger.info("per domain catAvg:\n" + str_)
-    # print(f"Memory cost: {net_info['memory_cost']:.2f} MB | Param size: {net_info['param_size']:.2f} MB | Act size: {net_info['act_size']:.2f} MB")
+    if str(cfg.ADAPTER.NAME) in ["mert"]:
+        total_backward_cs = 0.0
+        tta_model.reset()
+        input_size = (cfg.TEST.BATCH_SIZE, 3, *cfg.INPUT.SIZE)
+        x = torch.zeros(input_size).cuda()
+        tta_model(x)
+        _, total_backward_cs = get_bn_cache_size(tta_model.model, False)
+    net_info["memory_cost"] += total_backward_cs
+    logger.info("Memory profiling results:")
+    logger.info(
+        "  Total memory cost : %.2f MB", net_info["memory_cost"]
+    )
+    logger.info(
+        "  Parameter size    : %.2f MB", net_info["param_size"]
+    )
+    logger.info(
+        "  Activation size   : %.2f MB", net_info["act_size"]
+    )
     print('average adaptation time:', np.mean(times))
     pass
 

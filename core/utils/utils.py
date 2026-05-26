@@ -6,7 +6,6 @@ import os.path as osp
 import warnings
 import torch
 
-
 def set_random_seed(seed):
     if seed > 0 :
         random.seed(seed)

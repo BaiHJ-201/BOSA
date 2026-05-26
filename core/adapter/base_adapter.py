@@ -10,7 +10,7 @@ class BaseAdapter(nn.Module):
         self.logger = logging.getLogger("TTA.adapter")
         self.cfg = cfg
         self.model = self.configure_model(model)
-        
+        self.enable_adapt = True
         params, param_names = self.collect_params(self.model)
         if len(param_names) == 0:
             self.optimizer = None
@@ -20,16 +20,16 @@ class BaseAdapter(nn.Module):
         self.steps = self.cfg.OPTIM.STEPS
         assert self.steps > 0, "requires >= 1 step(s) to forward and update"
         # self.model_state, self.optimizer_state = self.copy_model_and_optimizer()
-
+        
     def forward(self, x):
         for _ in range(self.steps):
-            outputs = self.forward_and_adapt(x)
-
+            outputs = self.forward_and_adapt(x, self.model, self.optimizer)
+        
         return outputs
-
+   
     def forward_and_adapt(self, *args):
         raise NotImplementedError("implement forward_and_adapt by yourself!")
-
+    
     def configure_model(self, model):
         raise NotImplementedError("implement configure_model by yourself!")
 

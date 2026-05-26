@@ -2,8 +2,6 @@ MODEL:
   # ARCH: Hendrycks2020AugMix_ResNeXt_swa
   ARCH: Hendrycks2020AugMix_ResNeXt
 
-DATA_DIR: "./datasets"
-
 INPUT:
   SIZE: 
     - 32 

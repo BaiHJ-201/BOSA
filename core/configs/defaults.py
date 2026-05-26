@@ -91,7 +91,7 @@ _C.CUDNN.BENCHMARK = True
 _C.DESC = ""
 _C.SEED = 427
 _C.OUTPUT_DIR = "./output"
-_C.DATA_DIR = "./datasets"
+_C.DATA_DIR = "/root/autodl-tmp/datasets"
 _C.CKPT_DIR = "./ckpt"
 _C.LOG_DEST = "log.txt"
 

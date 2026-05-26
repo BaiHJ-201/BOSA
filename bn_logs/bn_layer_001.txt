@@ -1,3 +1,0 @@
-=== BN Layer 1 Logging Start ===
-[Init] num_features: 16
-[Init] weight shape: torch.Size([1, 16, 1, 1])

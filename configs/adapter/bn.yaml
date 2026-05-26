@@ -1,24 +1,2 @@
-OPTIM:
-  METHOD: Adam
-  STEPS: 1
-  BETA: 0.9
-  WD: 0.
-# OPTIM:
-#   METHOD: SGD
-#   STEPS: 1
-#   LR: 1e-4
-#   MOMENTUM: 0.9
-#   DAMPENING: 0.
-#   WD: 0.
-#   NESTEROV: False
-# OPTIM:
-#   METHOD: SAM
-#   STEPS: 1
-#   LR: 1e-5
-#   MOMENTUM: 0.9
 ADAPTER:
   NAME: bn
-  BN:
-   ALPHA: 0.5
-   THETA: 0.8
-   GAMMA: 0.1
