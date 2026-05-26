@@ -1,15 +1,13 @@
 import torch
 
-def update_statistics_1d_v5(local_mean:torch.Tensor, local_var:torch.Tensor, global_mean:torch.Tensor, global_var:torch.Tensor, momentum:float, data:torch.Tensor, label:torch.Tensor, reset_mean, gamma:float, training:bool=False):
+def update_statistics_1d_v5(local_mean:torch.Tensor, local_var:torch.Tensor, global_mean:torch.Tensor, global_var:torch.Tensor, momentum:float, data:torch.Tensor, label:torch.Tensor, gamma:float, training:bool=False):
     if local_mean.size(0) != local_var.size(0):
         raise RuntimeError("the sizes of local_mean and local_var are inequal.")
     
     if data.size(0) != label.size(0):
         raise RuntimeError("the values of the first dimension of data and label are inequal.")
     
-    if training and reset_mean:
-        
-        reset_mean = False
+    if training:
         # for example, label: [2, 2, 2, 3, 3, 4] (N = 6)
         l:torch.Tensor = label.unique()  # [2, 3, 4]
         l_mapping = torch.arange(l.size(0)).to(l.device)  # [0, 1, 2]
@@ -42,18 +40,17 @@ def update_statistics_1d_v5(local_mean:torch.Tensor, local_var:torch.Tensor, glo
         global_mean[...] = local_mean.mean(0)
         global_var[...] = local_var.mean(0) + local_mean.var(0)
     
-    return reset_mean
+    return
 
 
-def update_statistics_2d_v5(local_mean:torch.Tensor, local_var:torch.Tensor, global_mean:torch.Tensor, global_var:torch.Tensor, momentum:float, data:torch.Tensor, label:torch.Tensor, reset_mean, gamma:float, training:bool=False):
+def update_statistics_2d_v5(local_mean:torch.Tensor, local_var:torch.Tensor, global_mean:torch.Tensor, global_var:torch.Tensor, momentum:float, data:torch.Tensor, label:torch.Tensor, gamma:float, training:bool=False):
     if local_mean.size(0) != local_var.size(0):
         raise RuntimeError("the sizes of local_mean and local_var are inequal.")
     
     if data.size(0) != label.size(0):
         raise RuntimeError("the values of the first dimension of data and label are inequal.")
-    if training and reset_mean:
-
-        reset_mean = False
+    
+    if training:
         # for example, label: [2, 2, 2, 3, 3, 4] (N = 6)
         l:torch.Tensor = label.unique()  # [2, 3, 4]
         l_mapping = torch.arange(l.size(0)).to(l.device)  # [0, 1, 2]
@@ -86,7 +83,7 @@ def update_statistics_2d_v5(local_mean:torch.Tensor, local_var:torch.Tensor, glo
         global_mean[...] = local_mean.mean(0)
         global_var[...] = local_var.mean(0) + local_mean.var(0)
     
-    return reset_mean
+    return
 
 
 
@@ -128,11 +125,3 @@ def update_statistics_2d_ema(local_mean:torch.Tensor, local_var:torch.Tensor, gl
         global_var[...] = local_var.mean(0) + local_mean.var(0)
     
     return
-
-
-
-
-
-
-
-

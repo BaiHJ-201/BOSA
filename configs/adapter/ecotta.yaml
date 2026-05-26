@@ -1,16 +1,12 @@
 OPTIM:
-  METHOD: SGD
+  METHOD: Adam
   STEPS: 1
-  LR: 5e-2
-  MOMENTUM: 0.9
-  DAMPENING: 0.
+  BETA: 0.9
   WD: 0.
-  NESTEROV: False
 
 ADAPTER:
-  NAME: EcoTTA
-  RT:
-    ETA: 0.01      # 0.01 on CIFAR10, 0.05 on CIFAR100, 0.5 on ImageNet1K. This term is related with the number of categories. [Roughly follow max(0.0005 * K., 0.01)]
-    GAMMA: 0.   
-    Lambda: 0.25 
+  NAME: ecotta
+  ECOTTA:
+    lambda_reg: 0.25 
     e_margin: 0.4
+   

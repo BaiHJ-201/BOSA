@@ -1,7 +1,16 @@
-ckpt
-# datasets
-TRIBE
-cpp_wrapper/balanced_bn/build
-cpp_wrapper/balanced_bn/*.egg-info
-__pycache__
+__pycache__/
+*.pyc
+*.log
+*.pth
+*.pt
+*.npy
+*.npz
+.env
+.DS_Store
+
+ckpt/
+bosa/
+TRIBE/
+logs/
+statistic/
 datasets/

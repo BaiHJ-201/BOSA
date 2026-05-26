@@ -1,0 +1,13 @@
+OPTIM:
+  METHOD: Adam
+  STEPS: 1
+  BETA: 0.9
+  WD: 0. # 0. for cifar10 5e-4 for cifar100 0. for imagenet
+
+ADAPTER:
+  NAME: palm
+  PALM:
+    BETA3: 0.1  # 0.5 for cifar10 0.1 for cifar100  0.5 for imagenet
+    TEMP: 100.0 # 50.0 for cifar10 100.0 for cifar100  1000.0 for imagenet
+    THRESH: 0.5 # 1.0 for cifar10 0.5 for cifar100 0.3 for imagenet
+    LAMBDA: 0.01

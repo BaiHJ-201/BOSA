@@ -1,28 +1,17 @@
 from yacs.config import CfgNode as CN
-import os
 
 _C = CN()
 cfg = _C
-
 
 # ----------------------------- Model options ------------------------------- #
 _C.MODEL = CN()
 
 _C.MODEL.ARCH = 'Standard'
 
-_C.MODEL.EPISODIC = False
-
-_C.MODEL.PROJECTION = CN()
-
-_C.MODEL.PROJECTION.HEAD = "linear"
-_C.MODEL.PROJECTION.EMB_DIM = 2048
-_C.MODEL.PROJECTION.FEA_DIM = 128
-
 # ----------------------------- Corruption options -------------------------- #
 _C.CORRUPTION = CN()
 
 _C.CORRUPTION.DATASET = 'cifar10'
-_C.CORRUPTION.SOURCE = ''
 _C.CORRUPTION.TYPE = ['gaussian_noise', 'shot_noise', 'impulse_noise',
                       'defocus_blur', 'glass_blur', 'motion_blur', 'zoom_blur',
                       'snow', 'frost', 'fog', 'brightness', 'contrast',
@@ -45,26 +34,13 @@ _C.INPUT.TRANSFORMS = ()
 _C.LOADER = CN()
 
 _C.LOADER.SAMPLER = CN()
-_C.LOADER.SAMPLER.TYPE = "temporal"
+_C.LOADER.SAMPLER.TYPE = "sequence"
 # _C.LOADER.SAMPLER.GAMMA = 0.001
 _C.LOADER.SAMPLER.GAMMA = 0.1
 _C.LOADER.SAMPLER.IMB_FACTOR = 1
 _C.LOADER.SAMPLER.CLASS_RATIO = "constant"
 
 _C.LOADER.NUM_WORKS = 2
-
-# ----------------------------- Source loader options ----------------------- #
-# Number of workers for source data loading
-# Path to a specific checkpoint
-_C.CKPT_PATH = ""
-_C.SOURCE = CN()
-_C.SOURCE.NUM_WORKERS = 4
-
-
-# ------------------------------- Batch norm options ------------------------ #
-_C.BN = CN()
-_C.BN.EPS = 1e-5
-_C.BN.MOM = 0.1
 
 # ------------------------------- Optimizer options ------------------------- #
 _C.OPTIM = CN()
@@ -73,31 +49,22 @@ _C.OPTIM.LR = 1e-3
 
 _C.OPTIM.METHOD = 'Adam'
 _C.OPTIM.BETA = 0.9
-_C.OPTIM.MOMENTUM = 0.9
-_C.OPTIM.DAMPENING = 0.0
-_C.OPTIM.NESTEROV = True
 _C.OPTIM.WD = 0.0
 
 # ------------------------------- Testing options --------------------------- #
 _C.TEST = CN()
 _C.TEST.BATCH_SIZE = 64
 
-# --------------------------------- CUDNN options --------------------------- #
-_C.CUDNN = CN()
-_C.CUDNN.BENCHMARK = True
-
 # ---------------------------------- Misc options --------------------------- #
 
-_C.DESC = ""
 _C.SEED = 427
 _C.OUTPUT_DIR = "./output"
-_C.DATA_DIR = "/root/autodl-tmp/datasets"
+_C.DATA_DIR = "/home/users/wzr/datasets"
 _C.CKPT_DIR = "./ckpt"
+
 _C.LOG_DEST = "log.txt"
 
-_C.LOG_TIME = ''
-_C.DEBUG = 0
-
+_C.BN_ONLY = True
 # tta method specific
 _C.ADAPTER = CN()
 
@@ -110,16 +77,6 @@ _C.ADAPTER.RoTTA.NU = 0.001
 _C.ADAPTER.RoTTA.ALPHA = 0.05
 _C.ADAPTER.RoTTA.LAMBDA_T = 1.0
 _C.ADAPTER.RoTTA.LAMBDA_U = 1.0
-
-_C.ADAPTER.LAME = CN()
-_C.ADAPTER.LAME.CLASSIFIER = "fc"
-_C.ADAPTER.LAME.LAME_KNN = 5
-_C.ADAPTER.LAME.LAME_SIGMA = 1.0
-_C.ADAPTER.LAME.LAME_AFFINITY = 'kNN'
-_C.ADAPTER.LAME.LAME_FORCE_SYMMETRY = False
-
-_C.ADAPTER.TTAC = CN()
-_C.ADAPTER.TTAC.CLASSIFIER = "fc"
 
 _C.ADAPTER.TRIBE = CN()
 _C.ADAPTER.TRIBE.ETA = 0.005
@@ -134,47 +91,26 @@ _C.ADAPTER.COTTA.MT_ALPHA = 0.99
 _C.ADAPTER.COTTA.RST_M = 0.1
 _C.ADAPTER.COTTA.AP = 0.9
 
+_C.ADAPTER.BOSA = CN()
+_C.ADAPTER.BOSA.MEMORY_SIZE = 64
+_C.ADAPTER.BOSA.UPDATE_FREQUENCY = 64
+_C.ADAPTER.BOSA.LAMBDA_T = 1.0
+_C.ADAPTER.BOSA.LAMBDA_U = 1.0
+_C.ADAPTER.BOSA.EMA_DECAY = 0.999
 
-_C.ADAPTER.PETAL = CN()
-_C.ADAPTER.PETAL.STEPS = 1
-_C.ADAPTER.PETAL.EPISODIC = False
-_C.ADAPTER.PETAL.MT_ALPHA = 0.99
-_C.ADAPTER.PETAL.RST_M = 0.1
-_C.ADAPTER.PETAL.AP = 0.9
-_C.ADAPTER.PETAL.SPW = 1e-8
-_C.ADAPTER.PETAL.PERC = 0.03
+_C.ADAPTER.ECOTTA = CN()
+_C.ADAPTER.ECOTTA.lambda_reg = 0.25
+_C.ADAPTER.ECOTTA.e_margin = 0.4
 
-_C.ADAPTER.DATTA = CN()
-_C.ADAPTER.DATTA.ALPHA = 0.5
-_C.ADAPTER.DATTA.THETA = 0.8
+_C.ADAPTER.DAS = CN()
+_C.ADAPTER.DAS.e_margin = 0.4
 
-_C.ADAPTER.MERT = CN()
-_C.ADAPTER.MERT.PRUNE_Q = 0.1
-_C.ADAPTER.MERT.L1_LAMBDA = 1e-5
-_C.ADAPTER.MERT.EMA_DECAY = 0.999
-
-_C.ADAPTER.BN = CN()
-_C.ADAPTER.BN.ALPHA = 0.5
-_C.ADAPTER.BN.GAMMA = 0.2
-_C.ADAPTER.BN.THETA = 0.8
-
-_C.ADAPTER.NORM = CN()
-_C.ADAPTER.NORM.MOMENTUM = 1.0
+_C.ADAPTER.PALM = CN()
+_C.ADAPTER.PALM.BETA3 = 0.5
+_C.ADAPTER.PALM.TEMP = 50.0
+_C.ADAPTER.PALM.THRESH = 1.0
+_C.ADAPTER.PALM.LAMBDA = 0.01
 
 # --------------------------------- Default config -------------------------- #
 _CFG_DEFAULT = _C.clone()
 _CFG_DEFAULT.freeze()
-
-def complete_data_dir_path(root, dataset_name):
-    # map dataset name to data directory name
-    mapping = {"imagenet": "imagenet2012",
-               "imagenet_c": "ImageNet-C",
-               "imagenet_r": "imagenet-r",
-               "imagenet_a": "imagenet-a",
-               "imagenet_d": "imagenet-d",      # do not change
-               "cifar10": "",  # do not change the following values
-               "cifar10_c": "",
-               "cifar100": "",
-               "cifar100_c": "",
-               }
-    return os.path.join(root, mapping[dataset_name])

@@ -10,7 +10,7 @@ TEST:
   BATCH_SIZE: 64
 
 OPTIM:
-  LR: 5e-4
+  LR: 5e-5
 
 CORRUPTION:
   DATASET: imagenet

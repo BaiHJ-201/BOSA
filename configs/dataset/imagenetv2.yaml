@@ -1,0 +1,18 @@
+MODEL:
+  ARCH: Standard_R50
+
+INPUT:
+  SIZE: 
+    - 224 
+    - 224
+
+TEST:
+  BATCH_SIZE: 64
+
+OPTIM:
+  LR: 1e-3
+
+CORRUPTION:
+  DATASET: imagenetv2
+  NUM_CLASS: 1000
+  NUM_EX: -1 

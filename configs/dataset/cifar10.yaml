@@ -1,5 +1,4 @@
 MODEL:
-  # ARCH: Standard_swa
   ARCH: Standard
 
 INPUT:
@@ -9,10 +8,9 @@ INPUT:
 
 TEST:
   BATCH_SIZE: 64
-  # BATCH_SIZE: 408
 
 OPTIM:
-  LR: 1e-3 # 1e-5 for TTAC
+  LR: 1e-3 
 
 CORRUPTION:
   DATASET: cifar10

@@ -1,6 +1,8 @@
 from .base_dataset import TTADatasetBase, DatumRaw, DatumList
 from robustbench.data import load_cifar10c, load_cifar100c, load_imagenetc
-from .mnist_c import load_mnistc
+from torchvision.datasets import ImageFolder
+import os
+
 
 class CorruptionCIFAR(TTADatasetBase):
     def __init__(self, cfg, all_corruption, all_severity):
@@ -14,6 +16,9 @@ class CorruptionCIFAR(TTADatasetBase):
             self.load_image = load_cifar10c
         elif cfg.CORRUPTION.DATASET == "cifar100":
             self.load_image = load_cifar100c
+        else:
+            raise NotImplementedError(f"Unsupported CIFAR dataset: {cfg.CORRUPTION.DATASET}")
+
         self.domain_id_to_name = {}
         data_source = []
         for i_r in range(1):
@@ -34,38 +39,20 @@ class CorruptionCIFAR(TTADatasetBase):
         super().__init__(cfg, data_source)
 
 
-class GradualCorruptionCIFAR(TTADatasetBase):
-    def __init__(self, cfg, all_corruption, all_severity):
-        all_corruption = [all_corruption] if not isinstance(all_corruption, list) else all_corruption
-        all_severity = [all_severity] if not isinstance(all_severity, list) else all_severity
-
-        self.corruptions = all_corruption
-        self.severity = all_severity
-        self.load_image = None
-        if cfg.CORRUPTION.DATASET == "gradualCifar10":
-            self.load_image = load_cifar10c
-        elif cfg.CORRUPTION.DATASET == "gradualCifar100":
-            self.load_image = load_cifar100c
-        self.domain_id_to_name = {}
+class ImageNetV2(TTADatasetBase):
+    def __init__(self, cfg):
+        self.domain_id_to_name = {0: "imagenet-v2"}
         data_source = []
-        for i_c, corruption in enumerate(self.corruptions):
-            if i_c == 0:
-                severities = [5,4,3,2,1] 
-            else:
-                severities = [1,2,3,4,5,4,3,2,1] 
-            for i_s, severity in enumerate(severities):
-                d_name = f"{corruption}_{severity}"
-                d_id = i_s + i_c * 9
-                self.domain_id_to_name[d_id] = d_name
 
-                x, y = self.load_image(cfg.CORRUPTION.NUM_EX,
-                                    severity,
-                                    cfg.DATA_DIR,
-                                    False,
-                                    [corruption])
-                for i in range(len(y)):
-                    data_item = DatumRaw(x[i], y[i].item(), d_id)
-                    data_source.append(data_item)
+        root = os.path.join(cfg.DATA_DIR, "imagenetv2")
+        dataset = ImageFolder(root)
+
+        for img_path, _ in dataset.samples:
+            folder_name = os.path.basename(os.path.dirname(img_path))
+            real_label = int(folder_name)
+            data_item = DatumList(img_path, real_label, 0)
+            data_source.append(data_item)
+
         super().__init__(cfg, data_source)
 
 
@@ -97,42 +84,3 @@ class CorruptionImageNet(TTADatasetBase):
                     data_source.append(data_item)
 
         super().__init__(cfg, data_source)
-
-
-class CorruptionMNIST(TTADatasetBase):
-    def __init__(self, cfg, all_corruption, all_severity):
-        all_corruption = [all_corruption] if not isinstance(all_corruption, list) else all_corruption
-        all_severity = [all_severity] if not isinstance(all_severity, list) else all_severity
-
-        self.corruptions = all_corruption
-        self.severity = all_severity
-        self.load_image = None
-
-        if cfg.CORRUPTION.DATASET == "mnist":
-            self.load_image = load_mnistc
-        
-        self.domain_id_to_name = {}
-        data_source = []
-        for i_s, severity in enumerate(self.severity):
-            for i_c, corruption in enumerate(self.corruptions):
-                d_name = f"{corruption}_{severity}"
-                d_id = i_s * len(self.corruptions) + i_c
-                self.domain_id_to_name[d_id] = d_name
-
-                x, y = self.load_image(
-                                       cfg.DATA_DIR,
-                                       False,
-                                       [corruption],
-                                       )
-                for i in range(len(y)):
-                    data_item = DatumRaw(x[i], y[i].item(), d_id)
-                    data_source.append(data_item)
-        
-        super().__init__(cfg, data_source)
-
-
-
-
-
-
-        

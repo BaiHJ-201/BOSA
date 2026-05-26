@@ -1,5 +1,4 @@
 MODEL:
-  # ARCH: Hendrycks2020AugMix_ResNeXt_swa
   ARCH: Hendrycks2020AugMix_ResNeXt
 
 INPUT:
@@ -11,7 +10,7 @@ TEST:
   BATCH_SIZE: 64
 
 OPTIM:
-  LR: 1e-3
+  LR: 1e-3 
 
 CORRUPTION:
   DATASET: cifar100

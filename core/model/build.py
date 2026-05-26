@@ -1,60 +1,21 @@
 from robustbench.model_zoo.enums import ThreatModel
-from robustbench.utils import load_model, load_model_bayes
-from torchvision.models import resnet18
-import torch.nn as nn
-import os
-import torch
-from .toy import Toy
-import torch.nn.functional as F
-from .wideresnet40 import simplify_wideresnet40
+from robustbench.utils import load_model
 
 def build_model(cfg):
-    if cfg.MODEL.ARCH == "Toy":
-        base_model = Toy()
-        base_model.cuda()
-        return base_model
-    
-    if cfg.CORRUPTION.DATASET in ["cifar10", "cifar100", "imagenet", "gradualCifar10", "gradualCifar100"]:
-        if "gradual" in cfg.CORRUPTION.DATASET:
-            dataset = cfg.CORRUPTION.DATASET.replace("gradualC", "c")
-        else:
-            dataset = cfg.CORRUPTION.DATASET
+    if cfg.CORRUPTION.DATASET not in ["cifar10", "cifar100", "imagenet", "imagenetv2"]:
+        raise NotImplementedError(f"Unsupported dataset: {cfg.CORRUPTION.DATASET}")
 
-        if cfg.ADAPTER.NAME == "EcoTTA":
-            base_model = load_model(
-                'Hendrycks2020AugMix_WRN',
-                cfg.CKPT_DIR,
-                dataset,
-                ThreatModel.corruptions
-            ).cuda()
-            base_model = simplify_wideresnet40(base_model)   
-        elif cfg.ADAPTER.NAME == "petal":
-            base_model, base_mean_model, base_cov_model = load_model_bayes(cfg.MODEL.ARCH, cfg.CKPT_DIR,
-                    dataset, ThreatModel.corruptions)
-            base_model, base_mean_model, base_cov_model = base_model.cuda(), base_mean_model.cuda(), base_cov_model.cuda()
-            base_model = (base_model, base_mean_model, base_cov_model)
-        else:
-            base_model = load_model(cfg.MODEL.ARCH, cfg.CKPT_DIR,
-                                    dataset, ThreatModel.corruptions).cuda()
-    elif cfg.CORRUPTION.DATASET == "mnist":
-        base_model = resnet18(pretrained=True)
-        base_model.conv1 = nn.Conv2d(
-            in_channels=1,
-            out_channels=64,
-            kernel_size=base_model.conv1.kernel_size,
-            stride=base_model.conv1.stride,
-            padding=base_model.conv1.padding,
-            bias=False
-        )
-        base_model.fc = nn.Linear(
-            in_features=base_model.fc.in_features,
-            out_features=10
-        )
+    dataset = "imagenet" if "imagenet" in cfg.CORRUPTION.DATASET else cfg.CORRUPTION.DATASET
 
-        if os.path.exists(os.path.join(cfg.CKPT_DIR, cfg.CORRUPTION.DATASET, 'source', 'resnet18.pth')):
-            base_model.load_state_dict(torch.load(os.path.join(cfg.CKPT_DIR, cfg.CORRUPTION.DATASET, 'source', 'resnet18.pth')))
-        base_model.cuda()
+    if cfg.ADAPTER.NAME == "ecotta":
+        if dataset == "cifar10":
+            from .ecotta_net10c import ecotta_networks
+        elif dataset == "cifar100":
+            from .ecotta_net100c import ecotta_networks
+        else:
+            from .ecotta_netimage import ecotta_networks
+        base_model = ecotta_networks
     else:
-        raise NotImplementedError()
+        base_model = load_model(cfg.MODEL.ARCH, cfg.CKPT_DIR, dataset, ThreatModel.corruptions).cuda()
 
     return base_model

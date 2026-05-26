@@ -10,7 +10,7 @@ class BaseAdapter(nn.Module):
         self.logger = logging.getLogger("TTA.adapter")
         self.cfg = cfg
         self.model = self.configure_model(model)
-        self.enable_adapt = True
+        
         params, param_names = self.collect_params(self.model)
         if len(param_names) == 0:
             self.optimizer = None

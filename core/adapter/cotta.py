@@ -6,7 +6,7 @@ import torch.jit
 
 import PIL
 import torchvision.transforms as transforms
-from .my_transforms import Clip, ColorJitterPro, GaussianNoise
+from ..utils.my_transforms import Clip, ColorJitterPro, GaussianNoise
 from time import time
 import logging
 
