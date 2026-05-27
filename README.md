@@ -1,7 +1,6 @@
 # On-Device Realistic Test-Time Adaptation via Bias-Resistant Statistical Alignment
 
 This repository provides the official implementation of **BOSA** for our IJCAI 2026 paper **On-Device Realistic Test-Time Adaptation via Bias-Resistant Statistical Alignment**.
-BOSA is designed for realistic on-device test-time adaptation, where test data arrive as non-stationary streams and can be affected by class imbalance and distribution shifts. The method performs bias-resistant statistical alignment to adapt models online without requiring access to source-domain data.
 
 <p align="center">
   <img src="BOSA.png" alt="Overview of BOSA" width="85%">
