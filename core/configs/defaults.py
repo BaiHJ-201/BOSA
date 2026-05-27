@@ -59,7 +59,7 @@ _C.TEST.BATCH_SIZE = 64
 
 _C.SEED = 427
 _C.OUTPUT_DIR = "./output"
-_C.DATA_DIR = "/home/users/wzr/datasets"
+_C.DATA_DIR = "./datasets"
 _C.CKPT_DIR = "./ckpt"
 
 _C.LOG_DEST = "log.txt"
